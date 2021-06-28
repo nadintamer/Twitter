@@ -3,6 +3,7 @@ package com.codepath.apps.restclienttemplate.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -92,7 +93,8 @@ public class TimelineActivity extends AppCompatActivity {
             finish(); // navigate backwards to Login screen
             return true;
         } else if (id == R.id.action_compose) {
-            Log.d(TAG, "Compose icon tapped");
+            Intent i = new Intent(this, ComposeActivity.class);
+            startActivity(i);
             return true;
         }
 
