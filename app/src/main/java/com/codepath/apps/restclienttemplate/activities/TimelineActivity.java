@@ -88,9 +88,11 @@ public class TimelineActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_logout) {
-            Log.d(TAG, "Log out pressed");
             client.clearAccessToken(); // forget who's logged in
             finish(); // navigate backwards to Login screen
+            return true;
+        } else if (id == R.id.action_compose) {
+            Log.d(TAG, "Compose icon tapped");
             return true;
         }
 
