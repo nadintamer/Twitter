@@ -20,9 +20,12 @@ import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import okhttp3.Headers;
 
@@ -34,6 +37,7 @@ public class TimelineActivity extends AppCompatActivity {
     TwitterClient client;
 
     private static final String TAG = "TimelineActivity";
+    private static final int COMPOSE_REQUEST_CODE = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,10 +98,22 @@ public class TimelineActivity extends AppCompatActivity {
             return true;
         } else if (id == R.id.action_compose) {
             Intent i = new Intent(this, ComposeActivity.class);
-            startActivity(i);
+            startActivityForResult(i, COMPOSE_REQUEST_CODE);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK && requestCode == COMPOSE_REQUEST_CODE) {
+            Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
+            tweets.add(0, tweet);
+            adapter.notifyItemInserted(0);
+            binding.rvTweets.scrollToPosition(0);
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
