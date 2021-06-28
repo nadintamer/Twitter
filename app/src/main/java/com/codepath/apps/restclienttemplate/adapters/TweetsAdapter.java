@@ -53,6 +53,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         public void bind(Tweet tweet) {
             binding.tvBody.setText(tweet.body);
             binding.tvUsername.setText(tweet.user.screenName);
+            binding.tvTimestamp.setText(tweet.relativeTimestamp);
             Glide.with(context)
                     .load(tweet.user.profilePictureUrl)
                     .into(binding.ivProfilePicture);
