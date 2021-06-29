@@ -40,7 +40,7 @@ The following **optional** features are implemented:
 
 The following **additional** features are implemented:
 
-* [ ] List anything else that you can get done to improve the app functionality!
+* [X] Retweets are displayed as the original tweet with a retweet note, like in the Twitter app
 
 ## Video Walkthrough
 
