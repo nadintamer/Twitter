@@ -43,6 +43,9 @@
         android:layout_marginHorizontal="10dp"
         android:textColor="@color/black"
         android:textSize="20sp"
+        android:autoLink="all"
+        android:linksClickable="true"
+        android:textColorLink="@color/twitter_blue"
         tools:text="Hello! This is a tweet that I tweeted!"/>
 
     <ImageView
