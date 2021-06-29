@@ -100,6 +100,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
             binding.tvBody.setText(tweet.body);
             binding.tvUsername.setText(tweet.user.name);
+            binding.tvScreenName.setText(String.format("@%s", tweet.user.screenName));
             binding.tvTimestamp.setText(tweet.relativeTimestamp);
 
             int radius = 40;

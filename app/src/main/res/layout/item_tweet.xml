@@ -28,7 +28,25 @@
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:textColor="@color/black"
         android:textStyle="bold"
+        android:textSize="16sp"
+        android:ellipsize="end"
+        android:maxWidth="200dp"
+        android:maxLines="1"
         tools:text="Nadin Tamer" />
+
+    <TextView
+        android:id="@+id/tvScreenName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvRetweetedBy"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/tvUsername"
+        android:textSize="16sp"
+        android:textColor="@color/medium_gray"
+        android:ellipsize="end"
+        android:maxLines="1"
+        tools:text="nadintamer_" />
 
     <TextView
         android:id="@+id/tvBody"
@@ -40,6 +58,7 @@
         android:layout_marginBottom="10dp"
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:textColor="@color/black"
+        android:textSize="16sp"
         android:autoLink="all"
         android:linksClickable="true"
         android:textColorLink="@color/twitter_blue"
@@ -50,8 +69,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/tvUsername"
-        android:layout_marginStart="10dp"
-        android:layout_toEndOf="@+id/tvUsername"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/medium_gray"
+        android:layout_alignParentEnd="true"
         tools:text="48s" />
 
     <ImageView
@@ -79,9 +99,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/ivEmbeddedImage"
         android:background="@null"
-        android:layout_toEndOf="@id/ibRetweet"
+        android:layout_toEndOf="@id/tvRetweetCount"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="20dp"
         android:layout_marginBottom="10dp"
         app:srcCompat="@drawable/ic_vector_heart_stroke" />
 
@@ -115,7 +135,6 @@
         android:layout_marginTop="2dp"
         android:layout_marginBottom="5dp"
         android:textStyle="bold"
-        android:textColor="@color/medium_gray"
         android:text="Jack Dorsey Retweeted" />
 
     <ImageView
@@ -126,5 +145,5 @@
         android:layout_alignParentTop="true"
         android:layout_marginBottom="5dp"
         app:srcCompat="@drawable/ic_vector_retweet"
-        app:tint="@color/medium_gray" />
+        app:tint="@android:color/tab_indicator_text" />
 </RelativeLayout>
