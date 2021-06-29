@@ -1,7 +1,9 @@
 package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
@@ -12,12 +14,14 @@ import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.databinding.ActivityComposeBinding;
 import com.codepath.apps.restclienttemplate.databinding.ActivityTweetDetailBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
+import com.codepath.apps.restclienttemplate.models.User;
 
 import org.parceler.Parcels;
 
 public class TweetDetailActivity extends AppCompatActivity {
 
     ActivityTweetDetailBinding binding;
+    Tweet tweet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +30,7 @@ public class TweetDetailActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        Tweet tweet = Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
+        tweet = Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
         binding.tvBody.setText(tweet.body);
         binding.tvName.setText(tweet.user.name);
         binding.tvScreenName.setText(String.format("@%s", tweet.user.screenName));
@@ -45,5 +49,15 @@ public class TweetDetailActivity extends AppCompatActivity {
         } else {
             binding.ivEmbeddedImage.setVisibility(View.GONE);
         }
+
+        binding.ivProfilePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                User user = tweet.user;
+                Intent i = new Intent(TweetDetailActivity.this, UserDetailActivity.class);
+                i.putExtra("user", Parcels.wrap(user));
+                startActivity(i);
+            }
+        });
     }
 }

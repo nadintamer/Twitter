@@ -15,8 +15,10 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.codepath.apps.restclienttemplate.activities.TweetDetailActivity;
+import com.codepath.apps.restclienttemplate.activities.UserDetailActivity;
 import com.codepath.apps.restclienttemplate.databinding.ItemTweetBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
+import com.codepath.apps.restclienttemplate.models.User;
 
 import org.parceler.Parcels;
 
@@ -92,6 +94,19 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                     .load(tweet.user.profilePictureUrl)
                     .circleCrop()
                     .into(binding.ivProfilePicture);
+
+            binding.ivProfilePicture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                        User user = tweets.get(position).user;
+                        Intent i = new Intent(context, UserDetailActivity.class);
+                        i.putExtra("user", Parcels.wrap(user));
+                        context.startActivity(i);
+                    }
+                }
+            });
         }
 
         @Override
