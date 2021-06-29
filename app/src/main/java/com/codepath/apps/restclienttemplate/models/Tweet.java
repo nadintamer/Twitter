@@ -18,6 +18,7 @@ public class Tweet {
     public String body;
     public String createdAt;
     public String relativeTimestamp;
+    public List<String> imageUrls;
     public User user;
 
     public Tweet() {}
@@ -28,6 +29,7 @@ public class Tweet {
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.relativeTimestamp = getRelativeTimeAgo(tweet.createdAt);
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
+        tweet.imageUrls = extractImageUrls(jsonObject);
         return tweet;
     }
 
@@ -78,5 +80,22 @@ public class Tweet {
         }
 
         return "";
+    }
+
+    // TODO: Deal with videos (media_url_https gives thumbnail, video URLs under:
+    // video_info -> variants (array) -> url
+    public static List<String> extractImageUrls(JSONObject jsonObject) throws JSONException {
+        List<String> imageUrls = new ArrayList<>();
+        if (!jsonObject.has("extended_entities")) return imageUrls;
+        JSONObject entities = jsonObject.getJSONObject("extended_entities");
+
+        if (!entities.has("media")) return imageUrls;
+        JSONArray media = entities.getJSONArray("media");
+        for (int i = 0; i < media.length(); i++) {
+            JSONObject currentMedia = media.getJSONObject(i);
+            imageUrls.add(currentMedia.getString("media_url_https"));
+        }
+
+        return imageUrls;
     }
 }

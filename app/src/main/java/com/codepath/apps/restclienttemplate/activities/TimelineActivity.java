@@ -61,9 +61,9 @@ public class TimelineActivity extends AppCompatActivity {
             }
         });
         binding.swipeContainer.setColorSchemeResources(R.color.twitter_blue,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
+                R.color.twitter_blue_30,
+                R.color.twitter_blue_50,
+                R.color.twitter_blue_fill_pressed);
 
         populateHomeTimeline();
 

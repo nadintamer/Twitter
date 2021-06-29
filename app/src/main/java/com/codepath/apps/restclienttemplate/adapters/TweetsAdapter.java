@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -64,6 +65,16 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             binding.tvBody.setText(tweet.body);
             binding.tvUsername.setText(tweet.user.screenName);
             binding.tvTimestamp.setText(tweet.relativeTimestamp);
+
+            if (!tweet.imageUrls.isEmpty()) {
+                Glide.with(context)
+                        .load(tweet.imageUrls.get(0))
+                        .into(binding.ivEmbeddedImage);
+                binding.ivEmbeddedImage.setVisibility(View.VISIBLE);
+            } else {
+                binding.ivEmbeddedImage.setVisibility(View.GONE);
+            }
+
             Glide.with(context)
                     .load(tweet.user.profilePictureUrl)
                     .into(binding.ivProfilePicture);
