@@ -32,6 +32,7 @@ public class TweetDetailActivity extends AppCompatActivity {
         binding.tvScreenName.setText(String.format("@%s", tweet.user.screenName));
         Glide.with(this)
                 .load(tweet.user.profilePictureUrl)
+                .circleCrop()
                 .into(binding.ivProfilePicture);
 
         int radius = 40;
