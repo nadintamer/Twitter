@@ -1,18 +1,28 @@
 package com.codepath.apps.restclienttemplate.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.codepath.apps.restclienttemplate.activities.TweetDetailActivity;
 import com.codepath.apps.restclienttemplate.databinding.ItemTweetBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 
+import org.parceler.Parcels;
+
 import java.util.List;
+
+import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder> {
 
@@ -52,23 +62,26 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ItemTweetBinding binding;
 
         public ViewHolder(@NonNull ItemTweetBinding itemTweetBinding) {
             super(itemTweetBinding.getRoot());
             this.binding = itemTweetBinding;
+            itemTweetBinding.getRoot().setOnClickListener(this);
         }
 
         public void bind(Tweet tweet) {
             binding.tvBody.setText(tweet.body);
-            binding.tvUsername.setText(tweet.user.screenName);
+            binding.tvUsername.setText(tweet.user.name);
             binding.tvTimestamp.setText(tweet.relativeTimestamp);
 
+            int radius = 40;
             if (!tweet.imageUrls.isEmpty()) {
                 Glide.with(context)
                         .load(tweet.imageUrls.get(0))
+                        .transform(new CenterCrop(), new RoundedCorners(radius))
                         .into(binding.ivEmbeddedImage);
                 binding.ivEmbeddedImage.setVisibility(View.VISIBLE);
             } else {
@@ -78,6 +91,17 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             Glide.with(context)
                     .load(tweet.user.profilePictureUrl)
                     .into(binding.ivProfilePicture);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                Tweet tweet = tweets.get(position);
+                Intent i = new Intent(context, TweetDetailActivity.class);
+                i.putExtra("tweet", Parcels.wrap(tweet));
+                context.startActivity(i);
+            }
         }
     }
 }
