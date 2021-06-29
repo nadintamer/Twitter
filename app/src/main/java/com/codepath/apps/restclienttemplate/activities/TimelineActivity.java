@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -53,6 +54,17 @@ public class TimelineActivity extends AppCompatActivity {
         binding.rvTweets.setLayoutManager(new LinearLayoutManager(this));
         binding.rvTweets.setAdapter(adapter);
 
+        binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                populateHomeTimeline();
+            }
+        });
+        binding.swipeContainer.setColorSchemeResources(R.color.twitter_blue,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
         populateHomeTimeline();
 
     }
@@ -64,8 +76,9 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.d(TAG, "onSuccess! " + json.toString());
                 JSONArray jsonArray = json.jsonArray;
                 try {
-                    tweets.addAll(Tweet.fromJsonArray(jsonArray));
-                    adapter.notifyDataSetChanged();
+                    adapter.clear();
+                    adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                    binding.swipeContainer.setRefreshing(false);
                 } catch (JSONException e) {
                     Log.e(TAG, "JSON exception", e);
                 }
