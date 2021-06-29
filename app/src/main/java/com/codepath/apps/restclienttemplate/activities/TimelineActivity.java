@@ -39,6 +39,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     private static final String TAG = "TimelineActivity";
     private static final int COMPOSE_REQUEST_CODE = 20;
+    private static final int REPLY_REQUEST_CODE = 40;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +122,11 @@ public class TimelineActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == RESULT_OK && requestCode == COMPOSE_REQUEST_CODE) {
+            Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
+            tweets.add(0, tweet);
+            adapter.notifyItemInserted(0);
+            binding.rvTweets.scrollToPosition(0);
+        } else if (resultCode == RESULT_OK && requestCode == REPLY_REQUEST_CODE) {
             Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
             tweets.add(0, tweet);
             adapter.notifyItemInserted(0);

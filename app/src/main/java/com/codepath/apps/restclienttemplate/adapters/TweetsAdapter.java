@@ -1,5 +1,6 @@
 package com.codepath.apps.restclienttemplate.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -41,6 +42,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
     TwitterClient client;
 
     public static final String TAG = "TweetsAdapter";
+    public static final int REPLY_REQUEST_CODE = 40;
 
     public TweetsAdapter(Context context, List<Tweet> tweets) {
         this.context = context;
@@ -240,7 +242,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 Tweet tweet = tweets.get(position);
                 Intent i = new Intent(context, TweetDetailActivity.class);
                 i.putExtra("tweet", Parcels.wrap(tweet));
-                context.startActivity(i);
+                ((Activity) context).startActivityForResult(i, REPLY_REQUEST_CODE);
             }
         }
     }
