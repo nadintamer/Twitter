@@ -41,6 +41,9 @@
         android:layout_marginBottom="10dp"
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:textColor="@color/black"
+        android:autoLink="all"
+        android:linksClickable="true"
+        android:textColorLink="@color/twitter_blue"
         tools:text="This is my first tweet!" />
 
     <TextView

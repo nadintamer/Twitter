@@ -39,7 +39,7 @@ public class User {
     }
 
     public static String formatNumber(int num) {
-        if (num < 100) {
+        if (num < 1000) {
             return String.valueOf(num);
         } else if (num < 10000) {
             String thousands = String.valueOf(num / 1000);
