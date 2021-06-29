@@ -101,6 +101,9 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 binding.ivEmbeddedImage.setVisibility(View.GONE);
             }
 
+            binding.tvRetweetCount.setText(String.valueOf(tweet.retweetCount));
+            binding.tvFavoriteCount.setText(String.valueOf(tweet.favoriteCount));
+
             if (tweet.isRetweeted) {
                 binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
                 binding.ibRetweet.setTag("filled");
