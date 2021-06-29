@@ -20,6 +20,7 @@ import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.activities.TweetDetailActivity;
 import com.codepath.apps.restclienttemplate.activities.UserDetailActivity;
 import com.codepath.apps.restclienttemplate.databinding.ItemTweetBinding;
+import com.codepath.apps.restclienttemplate.models.Retweet;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
@@ -86,6 +87,17 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         }
 
         public void bind(Tweet tweet) {
+            if (tweet instanceof Retweet) {
+                User retweeter = ((Retweet) tweet).getRetweetedBy();
+                tweet = ((Retweet) tweet).getOriginal();
+                binding.tvRetweetedBy.setText(String.format("%s Retweeted", retweeter.name));
+                binding.tvRetweetedBy.setVisibility(View.VISIBLE);
+                binding.ivRetweet.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvRetweetedBy.setVisibility(View.GONE);
+                binding.ivRetweet.setVisibility(View.GONE);
+            }
+
             binding.tvBody.setText(tweet.body);
             binding.tvUsername.setText(tweet.user.name);
             binding.tvTimestamp.setText(tweet.relativeTimestamp);
@@ -119,6 +131,8 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
                 binding.ibFavorite.setTag("empty");
             }
+
+
 
             Glide.with(context)
                     .load(tweet.user.profilePictureUrl)

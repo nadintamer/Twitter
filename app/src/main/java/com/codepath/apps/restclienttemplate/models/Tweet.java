@@ -47,7 +47,12 @@ public class Tweet {
     public static List<Tweet> fromJsonArray(JSONArray jsonArray) throws JSONException {
         List<Tweet> tweets = new ArrayList<>();
         for (int i = 0; i < jsonArray.length(); i++) {
-            tweets.add(fromJson(jsonArray.getJSONObject(i)));
+            JSONObject object = jsonArray.getJSONObject(i);
+            if (object.has("retweeted_status")) {
+                tweets.add(Retweet.fromJson(object));
+            } else {
+                tweets.add(fromJson(object));
+            }
         }
         return tweets;
     }

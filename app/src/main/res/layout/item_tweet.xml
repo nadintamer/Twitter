@@ -12,10 +12,9 @@
         android:id="@+id/ivProfilePicture"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/tvRetweetedBy"
         android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="5dp"
         android:layout_marginBottom="30dp"
         tools:srcCompat="@tools:sample/avatars" />
 
@@ -23,9 +22,9 @@
         android:id="@+id/tvUsername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/tvRetweetedBy"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="5dp"
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:textColor="@color/black"
         android:textStyle="bold"
@@ -50,7 +49,7 @@
         android:id="@+id/tvTimestamp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_alignTop="@id/tvUsername"
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@+id/tvUsername"
         tools:text="48s" />
@@ -105,4 +104,27 @@
         android:layout_marginTop="2dp"
         android:layout_alignTop="@id/ibFavorite"
         tools:text="439" />
+
+    <TextView
+        android:id="@+id/tvRetweetedBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/ivRetweet"
+        android:layout_toEndOf="@id/ivRetweet"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="5dp"
+        android:textStyle="bold"
+        android:textColor="@color/medium_gray"
+        android:text="Jack Dorsey Retweeted" />
+
+    <ImageView
+        android:id="@+id/ivRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="5dp"
+        app:srcCompat="@drawable/ic_vector_retweet"
+        app:tint="@color/medium_gray" />
 </RelativeLayout>
