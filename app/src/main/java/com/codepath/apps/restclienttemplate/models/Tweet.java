@@ -15,21 +15,32 @@ import java.util.Locale;
 
 @Parcel
 public class Tweet {
+    // TODO: make everything private
     public String body;
     public String createdAt;
     public String relativeTimestamp;
     public List<String> imageUrls;
     public User user;
+    public int retweetCount;
+    public int favoriteCount;
+    public Boolean isRetweeted;
+    public Boolean isFavorited;
+    public Long id;
 
     public Tweet() {}
 
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
+        tweet.id = jsonObject.getLong("id");
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.relativeTimestamp = getRelativeTimeAgo(tweet.createdAt);
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
         tweet.imageUrls = extractImageUrls(jsonObject);
+        tweet.retweetCount = jsonObject.getInt("retweet_count");
+        tweet.favoriteCount = jsonObject.getInt("favorite_count");
+        tweet.isFavorited = jsonObject.getBoolean("favorited");
+        tweet.isRetweeted = jsonObject.getBoolean("retweeted");
         return tweet;
     }
 

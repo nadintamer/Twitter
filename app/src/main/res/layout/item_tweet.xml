@@ -38,7 +38,7 @@
         android:layout_below="@+id/tvUsername"
         android:layout_marginStart="5dp"
         android:layout_marginTop="2dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:textColor="@color/black"
         tools:text="This is my first tweet!" />
@@ -58,6 +58,48 @@
         android:layout_height="200dp"
         android:layout_alignStart="@+id/tvUsername"
         android:layout_below="@id/tvBody"
-        android:layout_marginBottom="20dp"
         tools:srcCompat="@tools:sample/avatars" />
+
+    <ImageButton
+        android:id="@+id/ibRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivEmbeddedImage"
+        android:background="@null"
+        android:layout_alignStart="@id/ivEmbeddedImage"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        app:srcCompat="@drawable/ic_vector_retweet_stroke" />
+
+    <ImageButton
+        android:id="@+id/ibFavorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivEmbeddedImage"
+        android:background="@null"
+        android:layout_toEndOf="@id/ibRetweet"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginBottom="10dp"
+        app:srcCompat="@drawable/ic_vector_heart_stroke" />
+
+    <TextView
+        android:id="@+id/tvRetweetCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/ibRetweet"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:layout_alignTop="@id/ibRetweet"
+        tools:text="232" />
+
+    <TextView
+        android:id="@+id/tvFavoriteCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/ibFavorite"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:layout_alignTop="@id/ibFavorite"
+        tools:text="439" />
 </RelativeLayout>
