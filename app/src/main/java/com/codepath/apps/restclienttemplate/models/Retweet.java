@@ -6,8 +6,8 @@ import org.parceler.Parcel;
 
 @Parcel
 public class Retweet extends Tweet {
-    private Tweet original;
-    private User retweetedBy;
+    Tweet original;
+    User retweetedBy;
 
     public Retweet() {}
 
