@@ -166,8 +166,13 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                             public void onSuccess(int statusCode, Headers headers, JSON json) {
                                 Log.i(TAG, "onSuccess to (un)favorite Tweet");
                                 try {
-                                    Tweet tweet = Tweet.fromJson(json.jsonObject);
-                                    tweets.set(position, tweet);
+                                    if (json.jsonObject.has("retweeted_status")) {
+                                        Retweet tweet = Retweet.fromJson(json.jsonObject);
+                                        tweets.set(position, tweet);
+                                    } else {
+                                        Tweet tweet = Tweet.fromJson(json.jsonObject);
+                                        tweets.set(position, tweet);
+                                    }
                                     notifyItemChanged(position);
                                 } catch (JSONException e) {
                                     e.printStackTrace();
@@ -197,24 +202,33 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                     final int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
                         Tweet tweet = tweets.get(position);
+
+                        // TODO: is this bad? not sure how else to make it display correctly
+                        final JsonHttpResponseHandler singleTweetHandler = new JsonHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                                try {
+                                    JSONObject object = json.jsonObject;
+                                    Retweet originalRetweet = Retweet.fromJson(object);
+                                    tweets.set(position, originalRetweet); // displayed retweeted status
+                                    notifyItemChanged(position);
+                                } catch (JSONException e) {
+                                    Log.e(TAG, "JSON exception", e);
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                                Log.e(TAG, "onFailure to get single Tweet " + response, throwable);
+                            }
+                        };
+
                         JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
                             @Override
                             public void onSuccess(int statusCode, Headers headers, JSON json) {
                                 Log.i(TAG, "onSuccess to (un)retweet Tweet");
-                                try {
-                                    JSONObject jsonObject = json.jsonObject;
-                                    Tweet retweeted;
-                                    if (jsonObject.has("retweeted_status")) {
-                                        retweeted = Tweet.fromJson(jsonObject.getJSONObject("retweeted_status"));
-                                    } else {
-                                        retweeted = Tweet.fromJson(jsonObject);
-                                        retweeted.isRetweeted = false; // TODO: ????
-                                    }
-                                    tweets.set(position, retweeted);
-                                    notifyItemChanged(position);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                Tweet tweet = tweets.get(position);
+                                client.getSingleTweet(tweet.id, singleTweetHandler);
                             }
 
                             @Override
