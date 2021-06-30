@@ -67,6 +67,97 @@
         android:layout_marginHorizontal="10dp"
         tools:srcCompat="@tools:sample/avatars" />
 
+    <TextView
+        android:id="@+id/tvDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/ivEmbeddedImage"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        tools:text="12:49 • 30.06.2021" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="5dp"
+        android:layout_height="1dp"
+        android:layout_below="@id/tvDate"
+        android:background="@color/light_gray"/>
+
+    <TextView
+        android:id="@+id/tvRetweetCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider"
+        android:layout_alignStart="@id/tvDate"
+        android:layout_marginVertical="2dp"
+        android:layout_marginEnd="10dp"
+        android:textColor="@color/black"
+        tools:text="84 Retweets" />
+
+    <TextView
+        android:id="@+id/tvFavoriteCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider"
+        android:layout_toEndOf="@id/tvRetweetCount"
+        android:layout_marginVertical="2dp"
+        android:layout_marginEnd="20dp"
+        android:textColor="@color/black"
+        tools:text="1991 Likes" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginVertical="5dp"
+        android:layout_height="1dp"
+        android:layout_below="@id/tvRetweetCount"
+        android:background="@color/light_gray"/>
+
+    <ImageButton
+        android:id="@+id/ibReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider2"
+        android:background="@null"
+        android:layout_alignStart="@id/ivEmbeddedImage"
+        android:layout_marginStart="80dp"
+        android:layout_marginVertical="5dp"
+        app:srcCompat="@drawable/ic_vector_reply" />
+
+    <ImageButton
+        android:id="@+id/ibRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider2"
+        android:background="@null"
+        android:layout_toEndOf="@id/ibReply"
+        android:layout_marginStart="80dp"
+        android:layout_marginVertical="5dp"
+        app:srcCompat="@drawable/ic_vector_retweet_stroke" />
+
+    <ImageButton
+        android:id="@+id/ibFavorite"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider2"
+        android:background="@null"
+        android:layout_toEndOf="@id/ibRetweet"
+        android:layout_marginVertical="5dp"
+        android:layout_marginStart="80dp"
+        app:srcCompat="@drawable/ic_vector_heart_stroke" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_marginVertical="5dp"
+        android:layout_height="1dp"
+        android:layout_below="@id/ibRetweet"
+        android:background="@color/light_gray"/>
+
     <com.google.android.material.textfield.TextInputLayout
         style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
         android:layout_width="match_parent"

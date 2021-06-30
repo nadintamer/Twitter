@@ -7,9 +7,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,6 +21,7 @@ public class Tweet {
     public String body;
     public String createdAt;
     public String relativeTimestamp;
+    public String exactTimestamp;
     public List<String> imageUrls;
     public User user;
     public int retweetCount;
@@ -35,6 +38,7 @@ public class Tweet {
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.relativeTimestamp = getRelativeTimeAgo(tweet.createdAt);
+        tweet.exactTimestamp = formatExactTimestamp(tweet.createdAt);
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
         tweet.imageUrls = extractImageUrls(jsonObject);
         tweet.retweetCount = jsonObject.getInt("retweet_count");
@@ -96,6 +100,19 @@ public class Tweet {
         }
 
         return "";
+    }
+
+    public static String formatExactTimestamp(String rawJsonDate) {
+        DateFormat twitterFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy");
+        try {
+            Date result = twitterFormat.parse(rawJsonDate);
+            SimpleDateFormat written = new SimpleDateFormat("HH:mm • dd.MM.yyyy");
+            return written.format(result);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return rawJsonDate;
     }
 
     // TODO: Deal with videos (media_url_https gives thumbnail, video URLs under:

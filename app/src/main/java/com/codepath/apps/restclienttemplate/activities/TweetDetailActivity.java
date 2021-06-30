@@ -4,7 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
 
@@ -59,10 +63,24 @@ public class TweetDetailActivity extends AppCompatActivity {
         binding.tvBody.setText(tweet.body);
         binding.tvName.setText(tweet.user.name);
         binding.tvScreenName.setText(String.format("@%s", tweet.user.screenName));
+        binding.tvDate.setText(tweet.exactTimestamp);
         Glide.with(this)
                 .load(tweet.user.profilePictureUrl)
                 .circleCrop()
                 .into(binding.ivProfilePicture);
+
+        // TODO: where to put format number?
+        String boldText = User.formatNumber(tweet.retweetCount);
+        String normalText = tweet.retweetCount == 1 ? " Retweet" : " Retweets";
+        SpannableString str = new SpannableString(boldText + normalText);
+        str.setSpan(new StyleSpan(Typeface.BOLD), 0, boldText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        binding.tvRetweetCount.setText(str);
+
+        boldText = User.formatNumber(tweet.favoriteCount);
+        normalText = tweet.favoriteCount == 1 ? " Like" : " Likes";
+        str = new SpannableString(boldText + normalText);
+        str.setSpan(new StyleSpan(Typeface.BOLD), 0, boldText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        binding.tvFavoriteCount.setText(str);
 
         int radius = 40;
         if (!tweet.imageUrls.isEmpty()) {
