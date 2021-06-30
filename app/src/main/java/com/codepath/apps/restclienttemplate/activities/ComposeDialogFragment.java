@@ -27,7 +27,7 @@ import okhttp3.Headers;
 
 public class ComposeDialogFragment extends DialogFragment {
 
-    private static final int MAX_TWEET_LENGTH = 140;
+    private static final int MAX_TWEET_LENGTH = 280;
     private static final String TAG = "ComposeDialogFragment";
 
     private FragmentComposeBinding binding;

@@ -33,17 +33,30 @@
         android:layout_marginTop="0dp"
         tools:srcCompat="@tools:sample/avatars" />
 
-    <EditText
-        android:id="@+id/etBody"
-        android:layout_width="wrap_content"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:counterEnabled="true"
+        app:counterMaxLength="280"
+        android:background="@android:color/transparent"
         android:layout_alignTop="@id/ivProfilePicture"
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:background="@android:color/transparent"
-        android:ems="10"
-        android:hint="What's happening?" />
+        android:layout_marginEnd="10dp"
+        android:paddingTop="10dp"
+        app:hintEnabled="false"
+        app:boxBackgroundMode="none">
+        <EditText
+            android:id="@+id/etBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="0dp"
+            android:background="@android:color/transparent"
+            android:ems="10"
+            android:layout_gravity="top"
+            android:hint="What's happening?" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnTweet"
