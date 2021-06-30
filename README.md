@@ -41,6 +41,7 @@ The following **optional** features are implemented:
 The following **additional** features are implemented:
 
 * [X] Retweets are displayed as the original tweet with a retweet note, like in the Twitter app
+* [X] A user's profile information and timeline are displayed on a user detail view
 
 ## Video Walkthrough
 
