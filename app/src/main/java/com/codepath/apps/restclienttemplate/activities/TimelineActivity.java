@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -17,10 +18,12 @@ import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.adapters.TweetsAdapter;
 import com.codepath.apps.restclienttemplate.databinding.ActivityTimelineBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
+import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
@@ -30,15 +33,15 @@ import javax.annotation.Nullable;
 
 import okhttp3.Headers;
 
-public class TimelineActivity extends AppCompatActivity {
+public class TimelineActivity extends AppCompatActivity implements ComposeDialogFragment.ComposeDialogListener {
 
     ActivityTimelineBinding binding;
     List<Tweet> tweets;
     TweetsAdapter adapter;
     TwitterClient client;
+    User currentUser;
 
     private static final String TAG = "TimelineActivity";
-    private static final int COMPOSE_REQUEST_CODE = 20;
     private static final int REPLY_REQUEST_CODE = 40;
 
     @Override
@@ -66,8 +69,8 @@ public class TimelineActivity extends AppCompatActivity {
                 R.color.twitter_blue_50,
                 R.color.twitter_blue_fill_pressed);
 
+        populateCurrentUser();
         populateHomeTimeline();
-
     }
 
     private void populateHomeTimeline() {
@@ -92,6 +95,26 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
+    private void populateCurrentUser() {
+        client.getUserInformation(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.d(TAG, "onSuccess to fetch user information! " + json.toString());
+                JSONObject jsonObject = json.jsonObject;
+                try {
+                    currentUser = User.fromJson(jsonObject);
+                } catch (JSONException e) {
+                    Log.e(TAG, "JSON exception", e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure to fetch user information! " + response, throwable);
+            }
+        });
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -111,8 +134,7 @@ public class TimelineActivity extends AppCompatActivity {
             finish(); // navigate backwards to Login screen
             return true;
         } else if (id == R.id.action_compose) {
-            Intent i = new Intent(this, ComposeActivity.class);
-            startActivityForResult(i, COMPOSE_REQUEST_CODE);
+            showComposeDialog();
             return true;
         }
 
@@ -121,12 +143,7 @@ public class TimelineActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode == RESULT_OK && requestCode == COMPOSE_REQUEST_CODE) {
-            Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
-            tweets.add(0, tweet);
-            adapter.notifyItemInserted(0);
-            binding.rvTweets.scrollToPosition(0);
-        } else if (resultCode == RESULT_OK && requestCode == REPLY_REQUEST_CODE) {
+        if (resultCode == RESULT_OK && requestCode == REPLY_REQUEST_CODE) {
             Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
             tweets.add(0, tweet);
             adapter.notifyItemInserted(0);
@@ -134,5 +151,18 @@ public class TimelineActivity extends AppCompatActivity {
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void showComposeDialog() {
+        FragmentManager fm = getSupportFragmentManager();
+        ComposeDialogFragment composeDialogFragment = ComposeDialogFragment.newInstance(currentUser);
+        composeDialogFragment.show(fm, "fragment_compose");
+    }
+
+    @Override
+    public void onFinishComposeDialog(Tweet tweet) {
+        tweets.add(0, tweet);
+        adapter.notifyItemInserted(0);
+        binding.rvTweets.scrollToPosition(0);
     }
 }
