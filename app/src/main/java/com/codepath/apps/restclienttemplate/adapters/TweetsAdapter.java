@@ -148,7 +148,11 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 public void onClick(View v) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
-                        User user = tweets.get(position).user;
+                        Tweet tweet = tweets.get(position);
+                        if (tweet instanceof Retweet) {
+                            tweet = ((Retweet) tweet).getOriginal();
+                        }
+                        User user = tweet.user;
                         Intent i = new Intent(context, UserDetailActivity.class);
                         i.putExtra("user", Parcels.wrap(user));
                         context.startActivity(i);
@@ -239,7 +243,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                             @Override
                             public void onSuccess(int statusCode, Headers headers, JSON json) {
                                 Log.i(TAG, "onSuccess to (un)retweet Tweet");
-                                Tweet tweet = tweets.get(position);
+                                Tweet tweet = tweets.get(position); 
                                 client.getSingleTweet(tweet.id, singleTweetHandler);
                             }
 
