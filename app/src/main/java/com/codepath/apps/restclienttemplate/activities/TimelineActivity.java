@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
@@ -155,14 +156,22 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
 
     private void showComposeDialog() {
         FragmentManager fm = getSupportFragmentManager();
-        ComposeDialogFragment composeDialogFragment = ComposeDialogFragment.newInstance(currentUser);
+        ComposeDialogFragment composeDialogFragment = ComposeDialogFragment.newInstance(currentUser, null);
         composeDialogFragment.show(fm, "fragment_compose");
     }
 
     @Override
     public void onFinishComposeDialog(Tweet tweet) {
-        tweets.add(0, tweet);
-        adapter.notifyItemInserted(0);
-        binding.rvTweets.scrollToPosition(0);
+        if (tweet == null) { // replying to tweet, not composing
+            Toast.makeText(this, "Reply sent successfully!", Toast.LENGTH_SHORT).show();
+        } else {
+            tweets.add(0, tweet);
+            adapter.notifyItemInserted(0);
+            binding.rvTweets.scrollToPosition(0);
+        }
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
     }
 }

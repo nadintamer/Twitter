@@ -43,10 +43,11 @@ public class ComposeDialogFragment extends DialogFragment {
         // Use `newInstance` instead as shown below
     }
 
-    public static ComposeDialogFragment newInstance(User user) {
+    public static ComposeDialogFragment newInstance(User user, Tweet replyingTo) {
         ComposeDialogFragment frag = new ComposeDialogFragment();
         Bundle args = new Bundle();
         args.putParcelable("user", Parcels.wrap(user));
+        args.putParcelable("replyingTo", Parcels.wrap(replyingTo));
         frag.setArguments(args);
         return frag;
     }
@@ -64,7 +65,24 @@ public class ComposeDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         // Get field from view
         // Fetch arguments from bundle and set title
-        User currentUser = Parcels.unwrap(getArguments().getParcelable("user"));
+        final User currentUser = Parcels.unwrap(getArguments().getParcelable("user"));
+        final Tweet replyingTo = Parcels.unwrap(getArguments().getParcelable("replyingTo"));
+
+        if (replyingTo != null) {
+            Log.i(TAG, "Replying to a tweet");
+            binding.tvReplyingTo.setText(String.format("Replying to @%s", replyingTo.user.screenName));
+            binding.ivReply.setVisibility(View.VISIBLE);
+            binding.tvReplyingTo.setVisibility(View.VISIBLE);
+            binding.btnTweet.setText("Reply");
+            binding.etBody.setHint("Tweet your reply");
+            binding.etBody.setText(String.format("@%s", replyingTo.user.screenName));
+            binding.etBody.setSelection(replyingTo.user.screenName.length() + 1);
+        } else {
+            binding.ivReply.setVisibility(View.GONE);
+            binding.tvReplyingTo.setVisibility(View.GONE);
+            binding.btnTweet.setText("Tweet");
+            binding.etBody.setHint("What's happening?");
+        }
 
         // Show soft keyboard automatically and request focus to field
         binding.etBody.requestFocus();
@@ -93,25 +111,48 @@ public class ComposeDialogFragment extends DialogFragment {
                     return;
                 }
 
-                client.publishTweet(tweetContent, new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Headers headers, JSON json) {
-                        Log.i(TAG, "onSuccess to publish Tweet");
-                        try {
-                            Tweet tweet = Tweet.fromJson(json.jsonObject);
-                            ComposeDialogListener listener = (ComposeDialogListener) getActivity();
-                            listener.onFinishComposeDialog(tweet);
-                            dismiss();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                if (replyingTo != null) {
+                    client.replyToTweet(tweetContent, replyingTo.id, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG, "onSuccess to reply to Tweet");
+                            try {
+                                Tweet tweet = Tweet.fromJson(json.jsonObject);
+                                ComposeDialogListener listener = (ComposeDialogListener) getActivity();
+                                listener.onFinishComposeDialog(null);
+                                dismiss();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                        Log.e(TAG, "onFailure to publish Tweet", throwable);
-                    }
-                });
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.e(TAG, "onFailure to reply to Tweet", throwable);
+                        }
+                    });
+                } else {
+                    client.publishTweet(tweetContent, new JsonHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Headers headers, JSON json) {
+                            Log.i(TAG, "onSuccess to publish Tweet");
+                            try {
+                                Tweet tweet = Tweet.fromJson(json.jsonObject);
+                                ComposeDialogListener listener = (ComposeDialogListener) getActivity();
+                                listener.onFinishComposeDialog(tweet);
+                                dismiss();
+                            } catch (JSONException e) {
+                                // TODO everywhere: log all errors
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                            Log.e(TAG, "onFailure to publish Tweet", throwable);
+                        }
+                    });
+                }
             }
         });
 

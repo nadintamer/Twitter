@@ -24,13 +24,33 @@
         android:text="Cancel" />
 
     <ImageView
-        android:id="@+id/ivProfilePicture"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:id="@+id/ivReply"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_below="@+id/btnCancel"
         android:layout_alignParentStart="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="5dp"
+        android:src="@drawable/ic_vector_reply"/>
+
+    <TextView
+        android:id="@+id/tvReplyingTo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/ivReply"
+        android:layout_below="@+id/btnCancel"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        tools:text="Replying to nadintamer_"/>
+
+    <ImageView
+        android:id="@+id/ivProfilePicture"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/tvReplyingTo"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -43,7 +63,7 @@
         android:layout_alignTop="@id/ivProfilePicture"
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="20dp"
         android:paddingTop="10dp"
         app:hintEnabled="false"
         app:boxBackgroundMode="none">
@@ -68,7 +88,7 @@
         android:minWidth="0dp"
         android:backgroundTint="@color/twitter_blue"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="15dp"
         android:textAllCaps="false"
         android:text="Tweet"
         app:cornerRadius="50dp"/>

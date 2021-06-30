@@ -83,12 +83,24 @@
         tools:srcCompat="@tools:sample/avatars" />
 
     <ImageButton
-        android:id="@+id/ibRetweet"
+        android:id="@+id/ibReply"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/ivEmbeddedImage"
         android:background="@null"
         android:layout_alignStart="@id/ivEmbeddedImage"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        app:srcCompat="@drawable/ic_vector_reply" />
+
+    <ImageButton
+        android:id="@+id/ibRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivEmbeddedImage"
+        android:background="@null"
+        android:layout_toEndOf="@id/ibReply"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         app:srcCompat="@drawable/ic_vector_retweet_stroke" />
@@ -101,7 +113,7 @@
         android:background="@null"
         android:layout_toEndOf="@id/tvRetweetCount"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="20dp"
+        android:layout_marginStart="30dp"
         android:layout_marginBottom="10dp"
         app:srcCompat="@drawable/ic_vector_heart_stroke" />
 

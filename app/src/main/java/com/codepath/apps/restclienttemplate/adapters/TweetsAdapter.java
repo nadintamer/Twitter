@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -17,6 +18,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
+import com.codepath.apps.restclienttemplate.activities.ComposeDialogFragment;
+import com.codepath.apps.restclienttemplate.activities.TimelineActivity;
 import com.codepath.apps.restclienttemplate.activities.TweetDetailActivity;
 import com.codepath.apps.restclienttemplate.activities.UserDetailActivity;
 import com.codepath.apps.restclienttemplate.databinding.ItemTweetBinding;
@@ -150,6 +153,17 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                         i.putExtra("user", Parcels.wrap(user));
                         context.startActivity(i);
                     }
+                }
+            });
+
+            final Tweet finalTweet = tweet;
+            binding.ibReply.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    TimelineActivity activity = (TimelineActivity) view.getContext();
+                    FragmentManager fm = activity.getSupportFragmentManager();
+                    ComposeDialogFragment composeDialogFragment = ComposeDialogFragment.newInstance(activity.getCurrentUser(), finalTweet);
+                    composeDialogFragment.show(fm, "fragment_compose");
                 }
             });
 
