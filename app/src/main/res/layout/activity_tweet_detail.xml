@@ -67,27 +67,44 @@
         android:layout_marginHorizontal="10dp"
         tools:srcCompat="@tools:sample/avatars" />
 
-    <EditText
-        android:id="@+id/etReply"
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_above="@id/btnReply"
+        android:layout_alignParentBottom="true"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="5dp"
-        android:ems="10"
-        android:hint="Tweet your reply" />
+        android:layout_marginBottom="70dp"
+        app:hintEnabled="false"
+        app:boxBackgroundMode="filled"
+        app:boxBackgroundColor="@color/light_gray"
+        app:boxStrokeWidth="0dp"
+        app:boxCornerRadiusBottomEnd="15dp"
+        app:boxCornerRadiusBottomStart="15dp"
+        app:boxCornerRadiusTopEnd="15dp"
+        app:boxCornerRadiusTopStart="15dp" >
+        <EditText
+            android:id="@+id/etReply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="5dp"
+            android:textSize="18sp"
+            android:hint="Tweet your reply" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnReply"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:text="Reply" />
+        android:backgroundTint="@color/twitter_blue"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp"
+        android:textAllCaps="false"
+        android:text="Reply"
+        app:cornerRadius="50dp"/>
 
 </RelativeLayout>
