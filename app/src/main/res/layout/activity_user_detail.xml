@@ -6,15 +6,24 @@
     android:layout_height="match_parent"
     tools:context=".activities.UserDetailActivity">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:titleTextColor="@color/white"
+        app:layout_scrollFlags="scroll|enterAlways" />
+
     <ImageView
         android:id="@+id/ivBanner"
+        android:layout_below="@id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="120dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <ImageView
         android:id="@+id/ivProfilePicture"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/toolbar"
         android:layout_marginTop="80dp"
         android:layout_marginStart="20dp"
         android:layout_width="80dp"

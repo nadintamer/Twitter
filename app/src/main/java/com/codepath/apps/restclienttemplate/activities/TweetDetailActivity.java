@@ -11,6 +11,7 @@ import android.view.View;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.databinding.ActivityTweetDetailBinding;
@@ -38,8 +39,18 @@ public class TweetDetailActivity extends AppCompatActivity {
         binding = ActivityTweetDetailBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        setSupportActionBar(binding.toolbar);
 
         client = TwitterApp.getTwitterClient(this);
+
+        getSupportActionBar().setTitle("");
+        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         tweet = Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
         if (tweet instanceof Retweet) {

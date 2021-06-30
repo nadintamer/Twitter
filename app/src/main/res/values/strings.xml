@@ -8,5 +8,6 @@
     <string name="logout_label">Log out</string>
     <string name="compose_label">Compose new Tweet</string>
     <string name="tweet">Tweet</string>
+    <string name="back">Back</string>
 
 </resources>

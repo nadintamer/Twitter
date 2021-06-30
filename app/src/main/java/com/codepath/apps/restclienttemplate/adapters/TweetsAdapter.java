@@ -243,7 +243,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                             @Override
                             public void onSuccess(int statusCode, Headers headers, JSON json) {
                                 Log.i(TAG, "onSuccess to (un)retweet Tweet");
-                                Tweet tweet = tweets.get(position); 
+                                Tweet tweet = tweets.get(position);
                                 client.getSingleTweet(tweet.id, singleTweetHandler);
                             }
 

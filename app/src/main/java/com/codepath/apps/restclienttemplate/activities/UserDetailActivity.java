@@ -14,6 +14,7 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.adapters.TweetsAdapter;
@@ -48,6 +49,16 @@ public class UserDetailActivity extends AppCompatActivity {
         binding = ActivityUserDetailBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
+        setSupportActionBar(binding.toolbar);
+
+        getSupportActionBar().setTitle("");
+        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
 
         user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
         client = TwitterApp.getTwitterClient(this);
