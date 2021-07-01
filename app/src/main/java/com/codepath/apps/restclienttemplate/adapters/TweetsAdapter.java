@@ -19,6 +19,7 @@ import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.activities.ComposeDialogFragment;
+import com.codepath.apps.restclienttemplate.activities.ImageDetailActivity;
 import com.codepath.apps.restclienttemplate.activities.TimelineActivity;
 import com.codepath.apps.restclienttemplate.activities.TweetDetailActivity;
 import com.codepath.apps.restclienttemplate.activities.UserDetailActivity;
@@ -108,11 +109,20 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
 
             int radius = 40;
             if (!tweet.imageUrls.isEmpty()) {
+                final String imageUrl = tweet.imageUrls.get(0);
                 Glide.with(context)
-                        .load(tweet.imageUrls.get(0))
+                        .load(imageUrl)
                         .transform(new CenterCrop(), new RoundedCorners(radius))
                         .into(binding.ivEmbeddedImage);
                 binding.ivEmbeddedImage.setVisibility(View.VISIBLE);
+                binding.ivEmbeddedImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent i = new Intent(context, ImageDetailActivity.class);
+                        i.putExtra("imageUrl", imageUrl);
+                        context.startActivity(i);
+                    }
+                });
             } else {
                 binding.ivEmbeddedImage.setVisibility(View.GONE);
             }
