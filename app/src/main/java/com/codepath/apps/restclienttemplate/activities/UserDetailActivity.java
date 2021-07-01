@@ -11,6 +11,8 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.bumptech.glide.Glide;
@@ -41,6 +43,7 @@ public class UserDetailActivity extends AppCompatActivity {
     TwitterClient client;
     User user;
     EndlessRecyclerViewScrollListener scrollListener;
+    MenuItem miActionProgressItem;
 
     private static final String TAG = "UserDetailActivity";
 
@@ -50,8 +53,8 @@ public class UserDetailActivity extends AppCompatActivity {
         binding = ActivityUserDetailBinding.inflate(getLayoutInflater());
         View view = binding.getRoot();
         setContentView(view);
-        setSupportActionBar(binding.toolbar);
 
+        setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle("");
         binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -124,11 +127,10 @@ public class UserDetailActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
-        populateUserTimeline();
     }
 
     private void loadNextDataFromApi() {
+        showProgressBar();
         client.getUserTimeline(tweets.get(tweets.size() - 1).id, user.screenName, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -136,6 +138,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 try {
                     tweets.remove(tweets.size() - 1);
                     adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                    hideProgressBar();
                 } catch (JSONException e) {
                     // Log the error
                     Log.e(TAG, "JSON exception", e);
@@ -150,6 +153,7 @@ public class UserDetailActivity extends AppCompatActivity {
     }
 
     private void populateUserTimeline() {
+        showProgressBar();
         client.getUserTimeline(null, user.screenName, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -158,6 +162,7 @@ public class UserDetailActivity extends AppCompatActivity {
                 try {
                     adapter.clear();
                     adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                    hideProgressBar();
                 } catch (JSONException e) {
                     Log.e(TAG, "JSON exception", e);
                 }
@@ -168,5 +173,26 @@ public class UserDetailActivity extends AppCompatActivity {
                 Log.e(TAG, "onFailure! " + response, throwable);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_user, menu);
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        populateUserTimeline(); // Don't populate home timeline until progress bar has been set
+        return true;
+    }
+
+    public void showProgressBar() {
+        // Show progress item
+        if (miActionProgressItem == null) return;
+        miActionProgressItem.setVisible(true);
+    }
+
+    public void hideProgressBar() {
+        // Hide progress item
+        if (miActionProgressItem == null) return;
+        miActionProgressItem.setVisible(false);
     }
 }

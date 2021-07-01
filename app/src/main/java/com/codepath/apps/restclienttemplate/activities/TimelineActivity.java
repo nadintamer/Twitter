@@ -89,7 +89,6 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
                 R.color.twitter_blue_fill_pressed);
 
         populateCurrentUser();
-        populateHomeTimeline();
     }
 
     private void loadNextDataFromApi() {
@@ -160,15 +159,11 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        miActionProgressItem = menu.findItem(R.id.miActionProgress);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_timeline, menu);
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        populateHomeTimeline(); // Don't populate home timeline until progress bar has been set
         return true;
     }
 
