@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -103,6 +104,26 @@ public class UserDetailActivity extends AppCompatActivity {
         str = new SpannableString(boldText + normalText);
         str.setSpan(new StyleSpan(Typeface.BOLD), 0, boldText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         binding.tvFollowers.setText(str);
+
+        binding.tvFollowers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(UserDetailActivity.this, FollowersActivity.class);
+                i.putExtra("user", Parcels.wrap(user));
+                i.putExtra("fetching", "followers");
+                startActivity(i);
+            }
+        });
+
+        binding.tvFollowing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(UserDetailActivity.this, FollowersActivity.class);
+                i.putExtra("user", Parcels.wrap(user));
+                i.putExtra("fetching", "following");
+                startActivity(i);
+            }
+        });
 
         populateUserTimeline();
     }

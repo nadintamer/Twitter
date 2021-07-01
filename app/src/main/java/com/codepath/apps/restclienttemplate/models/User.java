@@ -1,10 +1,13 @@
 package com.codepath.apps.restclienttemplate.models;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Parcel
 public class User {
@@ -36,6 +39,15 @@ public class User {
         user.numFollowers = jsonObject.getInt("followers_count");
         user.numFollowing = jsonObject.getInt("friends_count");
         return user;
+    }
+
+    public static List<User> fromJsonArray(JSONArray jsonArray) throws JSONException {
+        List<User> followers = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject object = jsonArray.getJSONObject(i);
+            followers.add(fromJson(object));
+        }
+        return followers;
     }
 
     public static String formatNumber(int num) {
