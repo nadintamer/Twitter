@@ -11,7 +11,4 @@
         app:actionLayout="@layout/action_view_progress" />
     <item android:id="@+id/action_logout" android:title="@string/logout_label"
         android:orderInCategory="5" app:showAsAction="always" />
-    <item android:id="@+id/action_compose" android:title="@string/compose_label"
-        android:icon="@drawable/ic_vector_compose"
-        android:orderInCategory="100" app:showAsAction="always" />
 </menu>

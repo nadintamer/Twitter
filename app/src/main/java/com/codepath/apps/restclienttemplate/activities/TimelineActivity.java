@@ -88,6 +88,13 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
                 R.color.twitter_blue_50,
                 R.color.twitter_blue_fill_pressed);
 
+        binding.fabCompose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showComposeDialog();
+            }
+        });
+
         populateCurrentUser();
     }
 
@@ -177,9 +184,6 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         if (id == R.id.action_logout) {
             client.clearAccessToken(); // forget who's logged in
             finish(); // navigate backwards to Login screen
-            return true;
-        } else if (id == R.id.action_compose) {
-            showComposeDialog();
             return true;
         }
 
