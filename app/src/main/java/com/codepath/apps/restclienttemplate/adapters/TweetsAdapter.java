@@ -226,8 +226,13 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                             public void onSuccess(int statusCode, Headers headers, JSON json) {
                                 try {
                                     JSONObject object = json.jsonObject;
-                                    Retweet originalRetweet = Retweet.fromJson(object);
-                                    tweets.set(position, originalRetweet); // displayed retweeted status
+                                    if (json.jsonObject.has("retweeted_status")) {
+                                        Retweet originalRetweet = Retweet.fromJson(object);
+                                        tweets.set(position, originalRetweet); // displayed retweeted status
+                                    } else {
+                                        Tweet originalTweet = Tweet.fromJson(object);
+                                        tweets.set(position, originalTweet);
+                                    }
                                     notifyItemChanged(position);
                                 } catch (JSONException e) {
                                     Log.e(TAG, "JSON exception", e);

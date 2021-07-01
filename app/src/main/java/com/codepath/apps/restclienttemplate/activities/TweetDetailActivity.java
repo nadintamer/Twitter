@@ -1,6 +1,7 @@
 package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -26,6 +27,7 @@ import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.parceler.Parcels;
 
 import okhttp3.Headers;
@@ -223,6 +225,67 @@ public class TweetDetailActivity extends AppCompatActivity {
                 } else if (binding.ibFavorite.getTag() == "filled") {
                     Log.i(TAG, "filled");
                     client.unfavoriteTweet(tweetId, handler);
+                }
+            }
+        });
+
+        binding.ibRetweet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final JsonHttpResponseHandler singleTweetHandler = new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Headers headers, JSON json) {
+                        try {
+                            Intent i = new Intent();
+
+                            if (json.jsonObject.getBoolean("retweeted")) {
+                                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
+                                binding.ibRetweet.setTag("filled");
+                            } else {
+                                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
+                                binding.ibRetweet.setTag("empty");
+                            }
+
+                            i.putExtra("position", position);
+                            if (json.jsonObject.has("retweeted_status")) {
+                                Retweet tweet = Retweet.fromJson(json.jsonObject);
+                                i.putExtra("tweet", Parcels.wrap(tweet));
+                            } else {
+                                Tweet tweet = Tweet.fromJson(json.jsonObject);
+                                i.putExtra("tweet", Parcels.wrap(tweet));
+                            }
+
+                            setResult(RESULT_OK, i);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "JSON exception", e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                        Log.e(TAG, "onFailure to get single Tweet " + response, throwable);
+                    }
+                };
+
+                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Headers headers, JSON json) {
+                        Log.i(TAG, "onSuccess to (un)retweet Tweet");
+                        client.getSingleTweet(tweetId, singleTweetHandler);
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                        Log.e(TAG, "onFailure to (un)retweet Tweet " + response, throwable);
+                    }
+                };
+
+                if (binding.ibRetweet.getTag() == "empty") {
+                    Log.i(TAG, "empty");
+                    client.retweetTweet(tweetId, handler);
+                } else if (binding.ibRetweet.getTag() == "filled") {
+                    Log.i(TAG, "filled");
+                    client.unretweetTweet(tweetId, handler);
                 }
             }
         });
