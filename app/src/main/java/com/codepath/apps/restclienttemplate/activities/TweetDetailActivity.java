@@ -1,8 +1,10 @@
 package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
@@ -287,6 +290,16 @@ public class TweetDetailActivity extends AppCompatActivity {
                     Log.i(TAG, "filled");
                     client.unretweetTweet(tweetId, handler);
                 }
+            }
+        });
+
+
+        binding.ibReply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                binding.etReply.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(binding.etReply, InputMethodManager.SHOW_IMPLICIT);
             }
         });
     }
