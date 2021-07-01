@@ -58,6 +58,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         setContentView(view);
 
         setSupportActionBar(binding.toolbar);
+        getSupportActionBar().setTitle("");
 
         client = TwitterApp.getTwitterClient(this);
         tweets = new ArrayList<>();
