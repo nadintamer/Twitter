@@ -20,6 +20,7 @@ import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.adapters.TweetsAdapter;
 import com.codepath.apps.restclienttemplate.databinding.ActivityTimelineBinding;
+import com.codepath.apps.restclienttemplate.models.Retweet;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
@@ -46,7 +47,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
     User currentUser;
 
     private static final String TAG = "TimelineActivity";
-    private static final int REPLY_REQUEST_CODE = 40;
+    private static final int DETAIL_REQUEST_CODE = 40;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,11 +181,23 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode == RESULT_OK && requestCode == REPLY_REQUEST_CODE) {
-            Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
-            tweets.add(0, tweet);
-            adapter.notifyItemInserted(0);
-            binding.rvTweets.scrollToPosition(0);
+        if (resultCode == RESULT_OK && requestCode == DETAIL_REQUEST_CODE) {
+            if (data.hasExtra("reply")) {
+                Tweet tweet = Parcels.unwrap(data.getParcelableExtra("reply"));
+                tweets.add(0, tweet);
+                adapter.notifyItemInserted(0);
+                binding.rvTweets.scrollToPosition(0);
+            } else if (data.hasExtra("tweet")) {
+                int position = data.getExtras().getInt("position");
+                Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
+                if (tweet instanceof Retweet) {
+                    Retweet retweet = (Retweet) tweet;
+                    tweets.set(position, retweet);
+                } else {
+                    tweets.set(position, tweet);
+                }
+                adapter.notifyItemChanged(position);
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, data);

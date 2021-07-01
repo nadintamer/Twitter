@@ -43,7 +43,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
     TwitterClient client;
 
     public static final String TAG = "TweetsAdapter";
-    public static final int REPLY_REQUEST_CODE = 40;
+    public static final int DETAIL_REQUEST_CODE = 40;
 
     public TweetsAdapter(Context context, List<Tweet> tweets) {
         this.context = context;
@@ -174,6 +174,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             binding.ibFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // TODO: turn these into functions?
                     final int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
                         Tweet tweet = tweets.get(position);
@@ -272,7 +273,8 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 Tweet tweet = tweets.get(position);
                 Intent i = new Intent(context, TweetDetailActivity.class);
                 i.putExtra("tweet", Parcels.wrap(tweet));
-                ((Activity) context).startActivityForResult(i, REPLY_REQUEST_CODE);
+                i.putExtra("position", position);
+                ((Activity) context).startActivityForResult(i, DETAIL_REQUEST_CODE);
             }
         }
     }

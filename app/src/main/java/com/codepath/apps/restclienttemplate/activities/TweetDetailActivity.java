@@ -1,7 +1,6 @@
 package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -11,6 +10,7 @@ import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -18,6 +18,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
+import com.codepath.apps.restclienttemplate.adapters.TweetsAdapter;
 import com.codepath.apps.restclienttemplate.databinding.ActivityTweetDetailBinding;
 import com.codepath.apps.restclienttemplate.models.Retweet;
 import com.codepath.apps.restclienttemplate.models.Tweet;
@@ -34,6 +35,8 @@ public class TweetDetailActivity extends AppCompatActivity {
     ActivityTweetDetailBinding binding;
     Tweet tweet;
     TwitterClient client;
+    int position;
+    Long tweetId;
 
     public static final String TAG = "TweetDetailActivity";
 
@@ -57,9 +60,28 @@ public class TweetDetailActivity extends AppCompatActivity {
         });
 
         tweet = Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
+        position = getIntent().getExtras().getInt("position");
+
+        User retweeter;
         if (tweet instanceof Retweet) {
+            retweeter = ((Retweet) tweet).getRetweetedBy();
+            tweetId = tweet.id;
             tweet = ((Retweet) tweet).getOriginal();
+
+            binding.tvRetweetedBy.setText(String.format("%s Retweeted", retweeter.name));
+            binding.tvRetweetedBy.setVisibility(View.VISIBLE);
+            binding.ivRetweet.setVisibility(View.VISIBLE);
+        } else {
+            tweetId = tweet.id;
+            binding.tvRetweetedBy.setVisibility(View.GONE);
+            binding.ivRetweet.setVisibility(View.GONE);
+
+            // since tvRetweetedBy doesn't exist anymore, we need to update the rest of the content
+            // to be below the toolbar instead
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) binding.ivProfilePicture.getLayoutParams();
+            params.addRule(RelativeLayout.BELOW, R.id.toolbar);
         }
+
         binding.tvBody.setText(tweet.body);
         binding.tvName.setText(tweet.user.name);
         binding.tvScreenName.setText(String.format("@%s", tweet.user.screenName));
@@ -93,6 +115,22 @@ public class TweetDetailActivity extends AppCompatActivity {
             binding.ivEmbeddedImage.setVisibility(View.GONE);
         }
 
+        if (tweet.isRetweeted) {
+            binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
+            binding.ibRetweet.setTag("filled");
+        } else {
+            binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
+            binding.ibRetweet.setTag("empty");
+        }
+
+        if (tweet.isFavorited) {
+            binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart);
+            binding.ibFavorite.setTag("filled");
+        } else {
+            binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
+            binding.ibFavorite.setTag("empty");
+        }
+
         binding.ivProfilePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -124,7 +162,7 @@ public class TweetDetailActivity extends AppCompatActivity {
                         try {
                             Tweet tweet = Tweet.fromJson(json.jsonObject);
                             Intent i = new Intent();
-                            i.putExtra("tweet", Parcels.wrap(tweet));
+                            i.putExtra("reply", Parcels.wrap(tweet));
                             setResult(RESULT_OK, i);
                             finish();
                         } catch (JSONException e) {
@@ -137,6 +175,55 @@ public class TweetDetailActivity extends AppCompatActivity {
                         Log.e(TAG, "onFailure to reply to Tweet", throwable);
                     }
                 });
+            }
+        });
+
+        binding.ibFavorite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Headers headers, JSON json) {
+                        Log.i(TAG, "onSuccess to (un)favorite Tweet");
+                        try {
+                            Intent i = new Intent();
+
+                            if (json.jsonObject.getBoolean("favorited")) {
+                                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart);
+                                binding.ibFavorite.setTag("filled");
+                            } else {
+                                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
+                                binding.ibFavorite.setTag("empty");
+                            }
+
+                            i.putExtra("position", position);
+                            if (json.jsonObject.has("retweeted_status")) {
+                                Retweet tweet = Retweet.fromJson(json.jsonObject);
+                                i.putExtra("tweet", Parcels.wrap(tweet));
+                            } else {
+                                Tweet tweet = Tweet.fromJson(json.jsonObject);
+                                i.putExtra("tweet", Parcels.wrap(tweet));
+                            }
+
+                            setResult(RESULT_OK, i);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                        Log.e(TAG, "onFailure to (un)favorite Tweet " + response, throwable);
+                    }
+                };
+
+                if (binding.ibFavorite.getTag() == "empty") {
+                    Log.i(TAG, "empty");
+                    client.favoriteTweet(tweetId, handler);
+                } else if (binding.ibFavorite.getTag() == "filled") {
+                    Log.i(TAG, "filled");
+                    client.unfavoriteTweet(tweetId, handler);
+                }
             }
         });
     }

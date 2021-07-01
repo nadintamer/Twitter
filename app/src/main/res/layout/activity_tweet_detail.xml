@@ -15,10 +15,34 @@
         app:layout_scrollFlags="scroll|enterAlways" />
 
     <ImageView
+        android:id="@+id/ivRetweet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="5dp"
+        app:srcCompat="@drawable/ic_vector_retweet"
+        app:tint="@android:color/tab_indicator_text" />
+
+    <TextView
+        android:id="@+id/tvRetweetedBy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/ivRetweet"
+        android:layout_toEndOf="@id/ivRetweet"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="5dp"
+        android:textStyle="bold"
+        android:text="Jack Dorsey Retweeted" />
+
+    <ImageView
         android:id="@+id/ivProfilePicture"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@id/tvRetweetedBy"
         android:layout_alignParentStart="true"
         android:layout_margin="10dp"
         tools:srcCompat="@tools:sample/avatars" />
@@ -27,8 +51,7 @@
         android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/toolbar"
-        android:layout_marginTop="10dp"
+        android:layout_alignTop="@id/ivProfilePicture"
         android:layout_toEndOf="@+id/ivProfilePicture"
         android:textStyle="bold"
         android:textColor="@color/black"
