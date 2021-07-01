@@ -9,6 +9,9 @@
         android:orderInCategory="0"
         app:showAsAction="always"
         app:actionLayout="@layout/action_view_progress" />
+    <item android:id="@+id/action_view_profile" android:title="My Profile"
+        android:icon="@drawable/ic_vector_person"
+        android:orderInCategory="3" app:showAsAction="always" />
     <item android:id="@+id/action_logout" android:title="@string/logout_label"
         android:orderInCategory="5" app:showAsAction="always" />
 </menu>

@@ -7,6 +7,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -30,6 +33,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcels;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -184,6 +189,11 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         if (id == R.id.action_logout) {
             client.clearAccessToken(); // forget who's logged in
             finish(); // navigate backwards to Login screen
+            return true;
+        } else if (id == R.id.action_view_profile) {
+            Intent i = new Intent(this, UserDetailActivity.class);
+            i.putExtra("user", Parcels.wrap(getCurrentUser()));
+            startActivity(i);
             return true;
         }
 
