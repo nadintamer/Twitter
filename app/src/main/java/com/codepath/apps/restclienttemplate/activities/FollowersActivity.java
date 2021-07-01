@@ -5,6 +5,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.codepath.apps.restclienttemplate.EndlessRecyclerViewScrollListener;
@@ -37,8 +39,28 @@ public class FollowersActivity extends AppCompatActivity {
     TwitterClient client;
     User user;
     String fetching;
+    MenuItem miActionProgressItem;
 
     private static final String TAG = "FollowersActivity";
+    private JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+        @Override
+        public void onSuccess(int statusCode, Headers headers, JSON json) {
+            Log.d(TAG, "onSuccess! " + json.toString());
+            JSONObject jsonObject = json.jsonObject;
+            try {
+                adapter.clear();
+                adapter.addAll(User.fromJsonArray(jsonObject.getJSONArray("users")));
+                hideProgressBar();
+            } catch (JSONException e) {
+                Log.e(TAG, "JSON exception", e);
+            }
+        }
+
+        @Override
+        public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+            Log.e(TAG, "onFailure! " + response, throwable);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,53 +92,40 @@ public class FollowersActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.rvFollowers.setLayoutManager(linearLayoutManager);
         binding.rvFollowers.setAdapter(adapter);
+    }
 
+    private void populateFollowersList() {
+        showProgressBar();
+        client.getFollowers(user.screenName, handler);
+    }
+
+    private void populateFollowingList() {
+        showProgressBar();
+        client.getFollowing(user.screenName, handler);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_user, menu);
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
         if (fetching.equals("followers")) {
             populateFollowersList();
         } else {
             populateFollowingList();
         }
+        return true;
     }
 
-    private void populateFollowersList() {
-        client.getFollowers(user.screenName, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                Log.d(TAG, "onSuccess! " + json.toString());
-                JSONObject jsonObject = json.jsonObject;
-                try {
-                    adapter.clear();
-                    adapter.addAll(User.fromJsonArray(jsonObject.getJSONArray("users")));
-                } catch (JSONException e) {
-                    Log.e(TAG, "JSON exception", e);
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure! " + response, throwable);
-            }
-        });
+    public void showProgressBar() {
+        // Show progress item
+        if (miActionProgressItem == null) return;
+        miActionProgressItem.setVisible(true);
     }
 
-    private void populateFollowingList() {
-        client.getFollowing(user.screenName, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                Log.d(TAG, "onSuccess! " + json.toString());
-                JSONObject jsonObject = json.jsonObject;
-                try {
-                    adapter.clear();
-                    adapter.addAll(User.fromJsonArray(jsonObject.getJSONArray("users")));
-                } catch (JSONException e) {
-                    Log.e(TAG, "JSON exception", e);
-                }
-            }
-
-            @Override
-            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure! " + response, throwable);
-            }
-        });
+    public void hideProgressBar() {
+        // Hide progress item
+        if (miActionProgressItem == null) return;
+        miActionProgressItem.setVisible(false);
     }
 }
