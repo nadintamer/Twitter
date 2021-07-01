@@ -43,6 +43,7 @@ The following **additional** features are implemented:
 * [X] Retweets are displayed as the original tweet with a retweet note, like in the Twitter app
 * [X] A user's profile information and timeline are displayed on a user detail view
 * [X] User can view uncropped version of an image by tapping on it, like in the Twitter app
+* [X] User can tap on the profile button in the menu bar to see their own profile and tweets
 
 ## Video Walkthrough
 
