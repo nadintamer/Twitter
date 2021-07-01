@@ -111,11 +111,20 @@ public class TweetDetailActivity extends AppCompatActivity {
 
         int radius = 40;
         if (!tweet.imageUrls.isEmpty()) {
+            final String imageUrl = tweet.imageUrls.get(0);
             Glide.with(this)
-                    .load(tweet.imageUrls.get(0))
+                    .load(imageUrl)
                     .transform(new CenterCrop(), new RoundedCorners(radius))
                     .into(binding.ivEmbeddedImage);
             binding.ivEmbeddedImage.setVisibility(View.VISIBLE);
+            binding.ivEmbeddedImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(TweetDetailActivity.this, ImageDetailActivity.class);
+                    i.putExtra("imageUrl", imageUrl);
+                    startActivity(i);
+                }
+            });
         } else {
             binding.ivEmbeddedImage.setVisibility(View.GONE);
         }
