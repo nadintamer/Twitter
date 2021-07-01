@@ -45,6 +45,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
     TweetsAdapter adapter;
     TwitterClient client;
     User currentUser;
+    MenuItem miActionProgressItem;
 
     private static final String TAG = "TimelineActivity";
     private static final int DETAIL_REQUEST_CODE = 40;
@@ -91,6 +92,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
     }
 
     private void loadNextDataFromApi() {
+        showProgressBar();
         client.getHomeTimeline(tweets.get(tweets.size() - 1).id, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -98,6 +100,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
                 try {
                     tweets.remove(tweets.size() - 1);
                     adapter.addAll(Tweet.fromJsonArray(jsonArray));
+                    hideProgressBar();
                 } catch (JSONException e) {
                     // Log the error
                     Log.e(TAG, "JSON exception", e);
@@ -112,6 +115,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
     }
 
     private void populateHomeTimeline() {
+        showProgressBar();
         client.getHomeTimeline(null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -121,6 +125,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
                     adapter.clear();
                     adapter.addAll(Tweet.fromJsonArray(jsonArray));
                     binding.swipeContainer.setRefreshing(false);
+                    hideProgressBar();
                 } catch (JSONException e) {
                     Log.e(TAG, "JSON exception", e);
                 }
@@ -151,6 +156,12 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
                 Log.e(TAG, "onFailure to fetch user information! " + response, throwable);
             }
         });
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -222,5 +233,17 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
 
     public User getCurrentUser() {
         return currentUser;
+    }
+
+    public void showProgressBar() {
+        // Show progress item
+        if (miActionProgressItem == null) return;
+        miActionProgressItem.setVisible(true);
+    }
+
+    public void hideProgressBar() {
+        // Hide progress item
+        if (miActionProgressItem == null) return;
+        miActionProgressItem.setVisible(false);
     }
 }
