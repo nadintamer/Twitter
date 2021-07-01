@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.codepath.apps.restclienttemplate.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
 import com.codepath.apps.restclienttemplate.TwitterClient;
 import com.codepath.apps.restclienttemplate.adapters.FollowersAdapter;
@@ -47,9 +48,21 @@ public class FollowersActivity extends AppCompatActivity {
         setContentView(view);
 
         setSupportActionBar(binding.toolbar);
+        fetching = getIntent().getStringExtra("fetching");
+        binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+            }
+        });
+        if (fetching.equals("followers")) {
+            getSupportActionBar().setTitle("Followers");
+        } else {
+            getSupportActionBar().setTitle("Following");
+        }
 
         user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
-        fetching = getIntent().getStringExtra("fetching");
         client = TwitterApp.getTwitterClient(this);
         followers = new ArrayList<>();
         adapter = new FollowersAdapter(this, followers);
