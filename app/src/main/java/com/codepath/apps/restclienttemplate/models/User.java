@@ -56,6 +56,9 @@ public class User {
         } else if (num < 10000) {
             String thousands = String.valueOf(num / 1000);
             String rest = String.valueOf(num % 1000);
+            if (rest.length() < 3) {
+                rest = String.format("0%s", rest);
+            }
             return String.format("%s.%s", thousands, rest);
         } else if (num < 1000000) {
             String thousands = String.valueOf(num / 1000);
