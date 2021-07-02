@@ -12,6 +12,7 @@ import com.codepath.apps.restclienttemplate.databinding.ActivityUserDetailBindin
 
 import org.parceler.Parcels;
 
+// activity to display an image from a Tweet in full screen without cropping
 public class ImageDetailActivity extends AppCompatActivity {
 
     ActivityImageDetailBinding binding;

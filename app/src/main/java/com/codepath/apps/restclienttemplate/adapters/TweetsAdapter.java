@@ -27,6 +27,7 @@ import com.codepath.apps.restclienttemplate.databinding.ItemTweetBinding;
 import com.codepath.apps.restclienttemplate.models.Retweet;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
+import com.codepath.apps.restclienttemplate.models.Utils;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONException;
@@ -70,6 +71,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         return tweets.size();
     }
 
+    // utility methods for convenience in notifying adapter
     public void clear() {
         tweets.clear();
         notifyDataSetChanged();
@@ -91,6 +93,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
         }
 
         public void bind(Tweet tweet) {
+            // if tweet is a retweet, display "@user Retweeted" text, otherwise hide it
             if (tweet instanceof Retweet) {
                 User retweeter = ((Retweet) tweet).getRetweetedBy();
                 tweet = ((Retweet) tweet).getOriginal();
@@ -102,11 +105,18 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 binding.ivRetweet.setVisibility(View.GONE);
             }
 
+            // bind relevant data to text views
             binding.tvBody.setText(tweet.body);
             binding.tvUsername.setText(tweet.user.name);
             binding.tvScreenName.setText(String.format("@%s", tweet.user.screenName));
             binding.tvTimestamp.setText(tweet.relativeTimestamp);
 
+            Glide.with(context)
+                    .load(tweet.user.profilePictureUrl)
+                    .circleCrop()
+                    .into(binding.ivProfilePicture);
+
+            // if there is an image, load it and set up onClickListener to zoom in, otherwise hide it
             int radius = 40;
             if (!tweet.imageUrls.isEmpty()) {
                 final String imageUrl = tweet.imageUrls.get(0);
@@ -127,37 +137,22 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 binding.ivEmbeddedImage.setVisibility(View.GONE);
             }
 
-            binding.tvRetweetCount.setText(User.formatNumber(tweet.retweetCount)); // TODO: this seems like bad style lol
-            binding.tvFavoriteCount.setText(User.formatNumber(tweet.favoriteCount));
+            // set up retweet and like buttons
+            binding.tvRetweetCount.setText(Utils.formatNumber(tweet.retweetCount));
+            binding.tvFavoriteCount.setText(Utils.formatNumber(tweet.favoriteCount));
 
-            if (tweet.isRetweeted) {
-                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
-                binding.ibRetweet.setTag("filled");
-            } else {
-                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
-                binding.ibRetweet.setTag("empty");
-            }
+            String retweetStatus = tweet.isRetweeted ? "filled" : "empty";
+            setRetweetButton(retweetStatus);
 
-            if (tweet.isFavorited) {
-                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart);
-                binding.ibFavorite.setTag("filled");
-            } else {
-                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
-                binding.ibFavorite.setTag("empty");
-            }
+            String favoriteStatus = tweet.isFavorited ? "filled" : "empty";
+            setFavoriteButton(favoriteStatus);
 
-
-
-            Glide.with(context)
-                    .load(tweet.user.profilePictureUrl)
-                    .circleCrop()
-                    .into(binding.ivProfilePicture);
-
+            // set up onClickListener on profile picture to show user detail view
             binding.ivProfilePicture.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                    if (position != RecyclerView.NO_POSITION) { // check if an item was deleted, but the user clicked it before the UI removed it
                         Tweet tweet = tweets.get(position);
                         if (tweet instanceof Retweet) {
                             tweet = ((Retweet) tweet).getOriginal();
@@ -170,6 +165,7 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
                 }
             });
 
+            // set up onClickListeners for reply, favorite & retweet buttons
             final Tweet finalTweet = tweet;
             binding.ibReply.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -184,113 +180,135 @@ public class TweetsAdapter extends RecyclerView.Adapter<TweetsAdapter.ViewHolder
             binding.ibFavorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // TODO: turn these into functions?
-                    final int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
-                        Tweet tweet = tweets.get(position);
-                        JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                                Log.i(TAG, "onSuccess to (un)favorite Tweet");
-                                try {
-                                    if (json.jsonObject.has("retweeted_status")) {
-                                        Retweet tweet = Retweet.fromJson(json.jsonObject);
-                                        tweets.set(position, tweet);
-                                    } else {
-                                        Tweet tweet = Tweet.fromJson(json.jsonObject);
-                                        tweets.set(position, tweet);
-                                    }
-                                    notifyItemChanged(position);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                                Log.e(TAG, "onFailure to (un)favorite Tweet " + response, throwable);
-                            }
-                        };
-
-                        if (binding.ibFavorite.getTag() == "empty") {
-                            Log.i(TAG, "empty");
-                            client.favoriteTweet(tweet.id, handler);
-                        } else if (binding.ibFavorite.getTag() == "filled") {
-                            Log.i(TAG, "filled");
-                            client.unfavoriteTweet(tweet.id, handler);
-                        }
-                    }
+                    handleFavoriteClick();
                 }
             });
 
             binding.ibRetweet.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    final int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
-                        Tweet tweet = tweets.get(position);
-
-                        // TODO: is this bad? not sure how else to make it display correctly
-                        final JsonHttpResponseHandler singleTweetHandler = new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                                try {
-                                    JSONObject object = json.jsonObject;
-                                    if (json.jsonObject.has("retweeted_status")) {
-                                        Retweet originalRetweet = Retweet.fromJson(object);
-                                        tweets.set(position, originalRetweet); // displayed retweeted status
-                                    } else {
-                                        Tweet originalTweet = Tweet.fromJson(object);
-                                        tweets.set(position, originalTweet);
-                                    }
-                                    notifyItemChanged(position);
-                                } catch (JSONException e) {
-                                    Log.e(TAG, "JSON exception", e);
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                                Log.e(TAG, "onFailure to get single Tweet " + response, throwable);
-                            }
-                        };
-
-                        JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Headers headers, JSON json) {
-                                Log.i(TAG, "onSuccess to (un)retweet Tweet");
-                                Tweet tweet = tweets.get(position);
-                                client.getSingleTweet(tweet.id, singleTweetHandler);
-                            }
-
-                            @Override
-                            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                                Log.e(TAG, "onFailure to (un)retweet Tweet " + response, throwable);
-                            }
-                        };
-
-                        if (binding.ibRetweet.getTag() == "empty") {
-                            Log.i(TAG, "empty");
-                            client.retweetTweet(tweet.id, handler);
-                        } else if (binding.ibRetweet.getTag() == "filled") {
-                            Log.i(TAG, "filled");
-                            client.unretweetTweet(tweet.id, handler);
-                        }
-                    }
+                    handleRetweetClick();
                 }
             });
         }
 
+        // set up onClickListener for view as a whole (to show tweet detail activity)
         @Override
         public void onClick(View view) {
             int position = getAdapterPosition();
-            if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+            if (position != RecyclerView.NO_POSITION) {
                 Tweet tweet = tweets.get(position);
                 Intent i = new Intent(context, TweetDetailActivity.class);
                 i.putExtra("tweet", Parcels.wrap(tweet));
                 i.putExtra("position", position);
                 ((Activity) context).startActivityForResult(i, DETAIL_REQUEST_CODE);
             }
+        }
+
+        private void handleFavoriteClick() {
+            final int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Tweet tweet = tweets.get(position);
+                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Headers headers, JSON json) {
+                        Log.i(TAG, "onSuccess to (un)favorite Tweet");
+                        try {
+                            updateTweetsWithJson(json, position);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "JSON exception", e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                        Log.e(TAG, "onFailure to (un)favorite Tweet " + response, throwable);
+                    }
+                };
+
+                if (binding.ibFavorite.getTag() == "empty") {
+                    client.favoriteTweet(tweet.id, handler);
+                } else if (binding.ibFavorite.getTag() == "filled") {
+                    client.unfavoriteTweet(tweet.id, handler);
+                }
+            }
+        }
+
+        private void handleRetweetClick() {
+            final int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Tweet tweet = tweets.get(position);
+                final JsonHttpResponseHandler singleTweetHandler = new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Headers headers, JSON json) {
+                        try {
+                            updateTweetsWithJson(json, position);
+                        } catch (JSONException e) {
+                            Log.e(TAG, "JSON exception", e);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                        Log.e(TAG, "onFailure to get single Tweet " + response, throwable);
+                    }
+                };
+
+                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Headers headers, JSON json) {
+                        Log.i(TAG, "onSuccess to (un)retweet Tweet");
+                        Tweet tweet = tweets.get(position);
+                        // make another API call to Twitter to fetch necessary information about original tweet (in case it was a retweet)
+                        client.getSingleTweet(tweet.id, singleTweetHandler);
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                        Log.e(TAG, "onFailure to (un)retweet Tweet " + response, throwable);
+                    }
+                };
+
+                if (binding.ibRetweet.getTag() == "empty") {
+                    Log.i(TAG, "empty");
+                    client.retweetTweet(tweet.id, handler);
+                } else if (binding.ibRetweet.getTag() == "filled") {
+                    Log.i(TAG, "filled");
+                    client.unretweetTweet(tweet.id, handler);
+                }
+            }
+        }
+
+        // helper method to update tweets list with new information from json
+        private void updateTweetsWithJson(JsonHttpResponseHandler.JSON json, int position) throws JSONException {
+            JSONObject object = json.jsonObject;
+            if (json.jsonObject.has("retweeted_status")) {
+                Retweet originalRetweet = Retweet.fromJson(object);
+                tweets.set(position, originalRetweet); // displayed retweeted status
+            } else {
+                Tweet originalTweet = Tweet.fromJson(object);
+                tweets.set(position, originalTweet);
+            }
+            notifyItemChanged(position);
+        }
+
+        // helper methods to handle status of retweet and favorite buttons
+        private void setRetweetButton(String status) {
+            if (status.equals("filled")) {
+                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
+            } else {
+                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
+            }
+            binding.ibRetweet.setTag(status);
+        }
+
+        private void setFavoriteButton(String status) {
+            if (status.equals("filled")) {
+                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart);
+            } else {
+                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
+            }
+            binding.ibFavorite.setTag(status);
         }
     }
 }

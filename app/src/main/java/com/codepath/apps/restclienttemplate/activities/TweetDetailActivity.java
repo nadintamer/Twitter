@@ -27,6 +27,7 @@ import com.codepath.apps.restclienttemplate.databinding.ActivityTweetDetailBindi
 import com.codepath.apps.restclienttemplate.models.Retweet;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
+import com.codepath.apps.restclienttemplate.models.Utils;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONException;
@@ -53,8 +54,7 @@ public class TweetDetailActivity extends AppCompatActivity {
         setContentView(view);
         setSupportActionBar(binding.toolbar);
 
-        client = TwitterApp.getTwitterClient(this);
-
+        // set up toolbar
         getSupportActionBar().setTitle("");
         binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -64,9 +64,11 @@ public class TweetDetailActivity extends AppCompatActivity {
             }
         });
 
+        client = TwitterApp.getTwitterClient(this);
         tweet = Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
         position = getIntent().getExtras().getInt("position");
 
+        // set up UI to show retweeted text if applicable
         User retweeter;
         if (tweet instanceof Retweet) {
             retweeter = ((Retweet) tweet).getRetweetedBy();
@@ -87,6 +89,7 @@ public class TweetDetailActivity extends AppCompatActivity {
             params.addRule(RelativeLayout.BELOW, R.id.toolbar);
         }
 
+        // bind relevant data into views
         binding.tvBody.setText(tweet.body);
         binding.tvName.setText(tweet.user.name);
         binding.tvScreenName.setText(String.format("@%s", tweet.user.screenName));
@@ -96,19 +99,15 @@ public class TweetDetailActivity extends AppCompatActivity {
                 .circleCrop()
                 .into(binding.ivProfilePicture);
 
-        // TODO: where to put format number?
-        String boldText = User.formatNumber(tweet.retweetCount);
-        String normalText = tweet.retweetCount == 1 ? " Retweet" : " Retweets";
-        SpannableString str = new SpannableString(boldText + normalText);
-        str.setSpan(new StyleSpan(Typeface.BOLD), 0, boldText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        binding.tvRetweetCount.setText(str);
+        String retweetText = tweet.retweetCount == 1 ? " Retweet" : " Retweets";
+        SpannableString retweet = Utils.formatPartiallyBoldText(Utils.formatNumber(tweet.retweetCount), retweetText);
+        binding.tvRetweetCount.setText(retweet);
 
-        boldText = User.formatNumber(tweet.favoriteCount);
-        normalText = tweet.favoriteCount == 1 ? " Like" : " Likes";
-        str = new SpannableString(boldText + normalText);
-        str.setSpan(new StyleSpan(Typeface.BOLD), 0, boldText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        binding.tvFavoriteCount.setText(str);
+        String favoriteText = tweet.favoriteCount == 1 ? " Like" : " Likes";
+        SpannableString favorite = Utils.formatPartiallyBoldText(Utils.formatNumber(tweet.favoriteCount), favoriteText);
+        binding.tvFavoriteCount.setText(favorite);
 
+        // display image if there is one
         int radius = 40;
         if (!tweet.imageUrls.isEmpty()) {
             final String imageUrl = tweet.imageUrls.get(0);
@@ -155,6 +154,7 @@ public class TweetDetailActivity extends AppCompatActivity {
             }
         });
 
+        // set up reply interaction at the bottom of the screen
         binding.etReply.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -180,7 +180,7 @@ public class TweetDetailActivity extends AppCompatActivity {
                             setResult(RESULT_OK, i);
                             finish();
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            Log.e(TAG, "JSON exception", e);
                         }
                     }
 
@@ -192,116 +192,20 @@ public class TweetDetailActivity extends AppCompatActivity {
             }
         });
 
+        // set up onClickListeners for favorite, retweet, reply buttons
         binding.ibFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Headers headers, JSON json) {
-                        Log.i(TAG, "onSuccess to (un)favorite Tweet");
-                        try {
-                            Intent i = new Intent();
-
-                            if (json.jsonObject.getBoolean("favorited")) {
-                                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart);
-                                binding.ibFavorite.setTag("filled");
-                            } else {
-                                binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
-                                binding.ibFavorite.setTag("empty");
-                            }
-
-                            i.putExtra("position", position);
-                            if (json.jsonObject.has("retweeted_status")) {
-                                Retweet tweet = Retweet.fromJson(json.jsonObject);
-                                i.putExtra("tweet", Parcels.wrap(tweet));
-                            } else {
-                                Tweet tweet = Tweet.fromJson(json.jsonObject);
-                                i.putExtra("tweet", Parcels.wrap(tweet));
-                            }
-
-                            setResult(RESULT_OK, i);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                        Log.e(TAG, "onFailure to (un)favorite Tweet " + response, throwable);
-                    }
-                };
-
-                if (binding.ibFavorite.getTag() == "empty") {
-                    Log.i(TAG, "empty");
-                    client.favoriteTweet(tweetId, handler);
-                } else if (binding.ibFavorite.getTag() == "filled") {
-                    Log.i(TAG, "filled");
-                    client.unfavoriteTweet(tweetId, handler);
-                }
+                handleFavoriteClick();
             }
         });
 
         binding.ibRetweet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final JsonHttpResponseHandler singleTweetHandler = new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Headers headers, JSON json) {
-                        try {
-                            Intent i = new Intent();
-
-                            if (json.jsonObject.getBoolean("retweeted")) {
-                                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
-                                binding.ibRetweet.setTag("filled");
-                            } else {
-                                binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
-                                binding.ibRetweet.setTag("empty");
-                            }
-
-                            i.putExtra("position", position);
-                            if (json.jsonObject.has("retweeted_status")) {
-                                Retweet tweet = Retweet.fromJson(json.jsonObject);
-                                i.putExtra("tweet", Parcels.wrap(tweet));
-                            } else {
-                                Tweet tweet = Tweet.fromJson(json.jsonObject);
-                                i.putExtra("tweet", Parcels.wrap(tweet));
-                            }
-
-                            setResult(RESULT_OK, i);
-                        } catch (JSONException e) {
-                            Log.e(TAG, "JSON exception", e);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                        Log.e(TAG, "onFailure to get single Tweet " + response, throwable);
-                    }
-                };
-
-                JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
-                    @Override
-                    public void onSuccess(int statusCode, Headers headers, JSON json) {
-                        Log.i(TAG, "onSuccess to (un)retweet Tweet");
-                        client.getSingleTweet(tweetId, singleTweetHandler);
-                    }
-
-                    @Override
-                    public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                        Log.e(TAG, "onFailure to (un)retweet Tweet " + response, throwable);
-                    }
-                };
-
-                if (binding.ibRetweet.getTag() == "empty") {
-                    Log.i(TAG, "empty");
-                    client.retweetTweet(tweetId, handler);
-                } else if (binding.ibRetweet.getTag() == "filled") {
-                    Log.i(TAG, "filled");
-                    client.unretweetTweet(tweetId, handler);
-                }
+                handleRetweetClick();
             }
         });
-
 
         binding.ibReply.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -311,5 +215,121 @@ public class TweetDetailActivity extends AppCompatActivity {
                 imm.showSoftInput(binding.etReply, InputMethodManager.SHOW_IMPLICIT);
             }
         });
+    }
+
+    private void handleFavoriteClick() {
+        JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG, "onSuccess to (un)favorite Tweet");
+                try {
+                    if (json.jsonObject.getBoolean("favorited")) {
+                        setFavoriteButton("filled");
+                    } else {
+                        setFavoriteButton("empty");
+                    }
+
+                    Intent i = new Intent();
+                    updateIntentWithJson(i, json, position);
+                    setResult(RESULT_OK, i);
+                } catch (JSONException e) {
+                    Log.e(TAG, "JSON exception", e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure to (un)favorite Tweet " + response, throwable);
+            }
+        };
+
+        if (binding.ibFavorite.getTag() == "empty") {
+            Log.i(TAG, "empty");
+            client.favoriteTweet(tweetId, handler);
+        } else if (binding.ibFavorite.getTag() == "filled") {
+            Log.i(TAG, "filled");
+            client.unfavoriteTweet(tweetId, handler);
+        }
+    }
+
+    private void handleRetweetClick() {
+        final JsonHttpResponseHandler singleTweetHandler = new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                try {
+                    if (json.jsonObject.getBoolean("retweeted")) {
+                        setRetweetButton("filled");
+                    } else {
+                        setRetweetButton("empty");
+                    }
+
+                    Intent i = new Intent();
+                    updateIntentWithJson(i, json, position);
+                    setResult(RESULT_OK, i);
+                } catch (JSONException e) {
+                    Log.e(TAG, "JSON exception", e);
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure to get single Tweet " + response, throwable);
+            }
+        };
+
+        JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                Log.i(TAG, "onSuccess to (un)retweet Tweet");
+                // make another API call to Twitter to fetch necessary information about original tweet (in case it was a retweet)
+                client.getSingleTweet(tweetId, singleTweetHandler);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                Log.e(TAG, "onFailure to (un)retweet Tweet " + response, throwable);
+            }
+        };
+
+        if (binding.ibRetweet.getTag() == "empty") {
+            Log.i(TAG, "empty");
+            client.retweetTweet(tweetId, handler);
+        } else if (binding.ibRetweet.getTag() == "filled") {
+            Log.i(TAG, "filled");
+            client.unretweetTweet(tweetId, handler);
+        }
+    }
+
+    // helper methods to handle status of retweet and favorite buttons
+    private void setRetweetButton(String status) {
+        if (status.equals("filled")) {
+            binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet);
+        } else {
+            binding.ibRetweet.setImageResource(R.drawable.ic_vector_retweet_stroke);
+        }
+        binding.ibRetweet.setTag(status);
+    }
+
+    private void setFavoriteButton(String status) {
+        if (status.equals("filled")) {
+            binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart);
+        } else {
+            binding.ibFavorite.setImageResource(R.drawable.ic_vector_heart_stroke);
+        }
+        binding.ibFavorite.setTag(status);
+    }
+
+    // helper method to update intent with new information from json
+    private void updateIntentWithJson(Intent i, JsonHttpResponseHandler.JSON json, int position) throws JSONException {
+        i.putExtra("position", position);
+        JSONObject object = json.jsonObject;
+
+        if (object.has("retweeted_status")) {
+            Retweet tweet = Retweet.fromJson(json.jsonObject);
+            i.putExtra("tweet", Parcels.wrap(tweet));
+        } else {
+            Tweet tweet = Tweet.fromJson(json.jsonObject);
+            i.putExtra("tweet", Parcels.wrap(tweet));
+        }
     }
 }

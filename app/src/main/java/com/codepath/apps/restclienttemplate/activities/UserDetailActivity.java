@@ -24,6 +24,7 @@ import com.codepath.apps.restclienttemplate.adapters.TweetsAdapter;
 import com.codepath.apps.restclienttemplate.databinding.ActivityUserDetailBinding;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
+import com.codepath.apps.restclienttemplate.models.Utils;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -54,6 +55,7 @@ public class UserDetailActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
+        // set up toolbar and custom back button
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle("");
         binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
@@ -64,6 +66,7 @@ public class UserDetailActivity extends AppCompatActivity {
             }
         });
 
+        // set up required data and recyclerView + scrollListener
         user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
         client = TwitterApp.getTwitterClient(this);
         tweets = new ArrayList<>();
@@ -81,6 +84,7 @@ public class UserDetailActivity extends AppCompatActivity {
         };
         binding.rvTweets.addOnScrollListener(scrollListener);
 
+        // bind all relevant user data into views
         binding.tvName.setText(user.name);
         binding.tvScreenName.setText(String.format("@%s", user.screenName));
         binding.tvBio.setText(user.bio);
@@ -95,25 +99,19 @@ public class UserDetailActivity extends AppCompatActivity {
                 .centerCrop()
                 .into(binding.ivBanner);
 
-        // TODO: clean up this code
-        String boldText = User.formatNumber(user.numFollowing);
-        String normalText = " Following";
-        SpannableString str = new SpannableString(boldText + normalText);
-        str.setSpan(new StyleSpan(Typeface.BOLD), 0, boldText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        binding.tvFollowing.setText(str);
+        SpannableString following = Utils.formatPartiallyBoldText(Utils.formatNumber(user.numFollowing), " Following");
+        binding.tvFollowing.setText(following);
 
-        boldText = User.formatNumber(user.numFollowers);
-        normalText = " Followers";
-        str = new SpannableString(boldText + normalText);
-        str.setSpan(new StyleSpan(Typeface.BOLD), 0, boldText.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        binding.tvFollowers.setText(str);
+        SpannableString followers = Utils.formatPartiallyBoldText(Utils.formatNumber(user.numFollowers), " Followers");
+        binding.tvFollowers.setText(followers);
 
+        // set up onClickListeners to lead to followers/following list activity
         binding.tvFollowers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(UserDetailActivity.this, FollowersActivity.class);
                 i.putExtra("user", Parcels.wrap(user));
-                i.putExtra("fetching", "followers");
+                i.putExtra("fetching", "Followers");
                 startActivity(i);
             }
         });
@@ -123,12 +121,13 @@ public class UserDetailActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent i = new Intent(UserDetailActivity.this, FollowersActivity.class);
                 i.putExtra("user", Parcels.wrap(user));
-                i.putExtra("fetching", "following");
+                i.putExtra("fetching", "Following");
                 startActivity(i);
             }
         });
     }
 
+    // load next batch of user tweets from Twitter API (for endless scrolling)
     private void loadNextDataFromApi() {
         showProgressBar();
         client.getUserTimeline(tweets.get(tweets.size() - 1).id, user.screenName, new JsonHttpResponseHandler() {
@@ -140,7 +139,6 @@ public class UserDetailActivity extends AppCompatActivity {
                     adapter.addAll(Tweet.fromJsonArray(jsonArray));
                     hideProgressBar();
                 } catch (JSONException e) {
-                    // Log the error
                     Log.e(TAG, "JSON exception", e);
                 }
             }
@@ -152,6 +150,7 @@ public class UserDetailActivity extends AppCompatActivity {
         });
     }
 
+    // fetch given user's timeline from the Twitter API
     private void populateUserTimeline() {
         showProgressBar();
         client.getUserTimeline(null, user.screenName, new JsonHttpResponseHandler() {
@@ -175,23 +174,22 @@ public class UserDetailActivity extends AppCompatActivity {
         });
     }
 
+    // helper methods for menu bar & progress indicator
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_user, menu);
         miActionProgressItem = menu.findItem(R.id.miActionProgress);
-        populateUserTimeline(); // Don't populate home timeline until progress bar has been set
+        // don't populate home timeline until progress bar has been set - otherwise no progress indicator will be visible
+        populateUserTimeline();
         return true;
     }
 
     public void showProgressBar() {
-        // Show progress item
         if (miActionProgressItem == null) return;
         miActionProgressItem.setVisible(true);
     }
 
     public void hideProgressBar() {
-        // Hide progress item
         if (miActionProgressItem == null) return;
         miActionProgressItem.setVisible(false);
     }

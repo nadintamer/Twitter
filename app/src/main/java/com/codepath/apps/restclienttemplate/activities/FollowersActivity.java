@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.room.util.StringUtil;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.models.User;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
+import org.apache.commons.codec.binary.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +44,7 @@ public class FollowersActivity extends AppCompatActivity {
     MenuItem miActionProgressItem;
 
     private static final String TAG = "FollowersActivity";
+    // response handler for fetching followers/following lists
     private JsonHttpResponseHandler handler = new JsonHttpResponseHandler() {
         @Override
         public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -69,8 +72,16 @@ public class FollowersActivity extends AppCompatActivity {
         View view = binding.getRoot();
         setContentView(view);
 
-        setSupportActionBar(binding.toolbar);
+        user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
         fetching = getIntent().getStringExtra("fetching");
+
+        client = TwitterApp.getTwitterClient(this);
+        followers = new ArrayList<>();
+        adapter = new FollowersAdapter(this, followers);
+
+        // set up toolbar
+        setSupportActionBar(binding.toolbar);
+        getSupportActionBar().setTitle(fetching);
         binding.toolbar.setNavigationIcon(R.drawable.ic_arrow_back);
         binding.toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,17 +89,8 @@ public class FollowersActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
-        if (fetching.equals("followers")) {
-            getSupportActionBar().setTitle("Followers");
-        } else {
-            getSupportActionBar().setTitle("Following");
-        }
 
-        user = Parcels.unwrap(getIntent().getParcelableExtra("user"));
-        client = TwitterApp.getTwitterClient(this);
-        followers = new ArrayList<>();
-        adapter = new FollowersAdapter(this, followers);
-
+        // set up recyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         binding.rvFollowers.setLayoutManager(linearLayoutManager);
         binding.rvFollowers.setAdapter(adapter);
@@ -106,10 +108,9 @@ public class FollowersActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_user, menu);
         miActionProgressItem = menu.findItem(R.id.miActionProgress);
-        if (fetching.equals("followers")) {
+        if (fetching.equals("Followers")) {
             populateFollowersList();
         } else {
             populateFollowingList();
@@ -118,13 +119,11 @@ public class FollowersActivity extends AppCompatActivity {
     }
 
     public void showProgressBar() {
-        // Show progress item
         if (miActionProgressItem == null) return;
         miActionProgressItem.setVisible(true);
     }
 
     public void hideProgressBar() {
-        // Hide progress item
         if (miActionProgressItem == null) return;
         miActionProgressItem.setVisible(false);
     }

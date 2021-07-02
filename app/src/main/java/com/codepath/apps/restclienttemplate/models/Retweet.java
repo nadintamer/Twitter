@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.parceler.Parcel;
 
+// subclass of Tweet to handle Retweets
 @Parcel
 public class Retweet extends Tweet {
     Tweet original;

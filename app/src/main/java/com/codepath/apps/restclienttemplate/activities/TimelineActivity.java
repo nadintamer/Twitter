@@ -62,9 +62,11 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         View view = binding.getRoot();
         setContentView(view);
 
+        // set up toolbar
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setTitle("");
 
+        // set up required data and recyclerView + scrollListener + swipe layout
         client = TwitterApp.getTwitterClient(this);
         tweets = new ArrayList<>();
         adapter = new TweetsAdapter(this, tweets);
@@ -79,7 +81,6 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
                 loadNextDataFromApi();
             }
         };
-
         binding.rvTweets.addOnScrollListener(scrollListener);
 
         binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -103,6 +104,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         populateCurrentUser();
     }
 
+    // load next batch of user tweets from Twitter API (for endless scrolling)
     private void loadNextDataFromApi() {
         showProgressBar();
         client.getHomeTimeline(tweets.get(tweets.size() - 1).id, new JsonHttpResponseHandler() {
@@ -126,6 +128,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         });
     }
 
+    // populate home timeline with tweets
     private void populateHomeTimeline() {
         showProgressBar();
         client.getHomeTimeline(null, new JsonHttpResponseHandler() {
@@ -150,6 +153,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         });
     }
 
+    // get current user information and save it
     private void populateCurrentUser() {
         client.getUserInformation(new JsonHttpResponseHandler() {
             @Override
@@ -170,36 +174,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_timeline, menu);
-        miActionProgressItem = menu.findItem(R.id.miActionProgress);
-        populateHomeTimeline(); // Don't populate home timeline until progress bar has been set
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        if (id == R.id.action_logout) {
-            client.clearAccessToken(); // forget who's logged in
-            finish(); // navigate backwards to Login screen
-            return true;
-        } else if (id == R.id.action_view_profile) {
-            Intent i = new Intent(this, UserDetailActivity.class);
-            i.putExtra("user", Parcels.wrap(getCurrentUser()));
-            startActivity(i);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    // handle results from replying or tweeting on a different activity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (resultCode == RESULT_OK && requestCode == DETAIL_REQUEST_CODE) {
@@ -224,6 +199,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    // helper methods for compose tweet modal dialog
     private void showComposeDialog() {
         FragmentManager fm = getSupportFragmentManager();
         ComposeDialogFragment composeDialogFragment = ComposeDialogFragment.newInstance(currentUser, null);
@@ -241,19 +217,45 @@ public class TimelineActivity extends AppCompatActivity implements ComposeDialog
         }
     }
 
-    public User getCurrentUser() {
-        return currentUser;
+    // helper methods for toolbar and progress indicator
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_timeline, menu);
+        miActionProgressItem = menu.findItem(R.id.miActionProgress);
+        populateHomeTimeline(); // don't populate home timeline until progress bar has been set
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_logout) {
+            client.clearAccessToken(); // forget who's logged in
+            finish(); // navigate backwards to Login screen
+            return true;
+        } else if (id == R.id.action_view_profile) {
+            Intent i = new Intent(this, UserDetailActivity.class);
+            i.putExtra("user", Parcels.wrap(getCurrentUser()));
+            startActivity(i);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     public void showProgressBar() {
-        // Show progress item
         if (miActionProgressItem == null) return;
         miActionProgressItem.setVisible(true);
     }
 
     public void hideProgressBar() {
-        // Hide progress item
         if (miActionProgressItem == null) return;
         miActionProgressItem.setVisible(false);
+    }
+
+    // return the user that is currently logged in
+    public User getCurrentUser() {
+        return currentUser;
     }
 }

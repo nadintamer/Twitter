@@ -17,7 +17,6 @@ import java.util.Locale;
 
 @Parcel
 public class Tweet {
-    // TODO: make everything private
     public String body;
     public String createdAt;
     public String relativeTimestamp;
@@ -67,8 +66,7 @@ public class Tweet {
     private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
-    // Code to get relative timestamp is adapted from: https://gist.github.com/nesquena/f786232f5ef72f6e10a7
-    // TODO: not sure whether to make this static or a class method?
+    // code to get relative timestamp is adapted from: https://gist.github.com/nesquena/f786232f5ef72f6e10a7
     public static String getRelativeTimeAgo(String rawJsonDate) {
         String twitterFormat = "EEE MMM dd HH:mm:ss ZZZZZ yyyy";
         SimpleDateFormat sf = new SimpleDateFormat(twitterFormat, Locale.ENGLISH);
@@ -95,13 +93,13 @@ public class Tweet {
                 return diff / DAY_MILLIS + "d";
             }
         } catch (ParseException e) {
-            Log.i(TAG, "getRelativeTimeAgo failed");
-            e.printStackTrace();
+            Log.e(TAG, "getRelativeTimeAgo failed", e);
         }
 
         return "";
     }
 
+    // format exact timestamp to show on tweet detail view
     public static String formatExactTimestamp(String rawJsonDate) {
         DateFormat twitterFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss ZZZZZ yyyy");
         try {
@@ -109,14 +107,13 @@ public class Tweet {
             SimpleDateFormat written = new SimpleDateFormat("HH:mm • dd.MM.yyyy");
             return written.format(result);
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e(TAG, "formatExactTimestamp failed", e);
         }
 
         return rawJsonDate;
     }
 
-    // TODO: Deal with videos (media_url_https gives thumbnail, video URLs under:
-    // video_info -> variants (array) -> url
+    // extract a list of image URLs from the given jsonObject
     public static List<String> extractImageUrls(JSONObject jsonObject) throws JSONException {
         List<String> imageUrls = new ArrayList<>();
         if (!jsonObject.has("extended_entities")) return imageUrls;

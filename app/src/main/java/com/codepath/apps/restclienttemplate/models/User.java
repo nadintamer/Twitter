@@ -49,25 +49,4 @@ public class User {
         }
         return followers;
     }
-
-    public static String formatNumber(int num) {
-        if (num < 1000) {
-            return String.valueOf(num);
-        } else if (num < 10000) {
-            String thousands = String.valueOf(num / 1000);
-            String rest = String.valueOf(num % 1000);
-            if (rest.length() < 3) {
-                rest = String.format("0%s", rest);
-            }
-            return String.format("%s.%s", thousands, rest);
-        } else if (num < 1000000) {
-            String thousands = String.valueOf(num / 1000);
-            String hundreds = String.valueOf((num % 1000) / 100);
-            return String.format("%s,%sK", thousands, hundreds);
-        } else {
-            String millions = String.valueOf(num / 1000000);
-            String thousands = String.valueOf((num % 1000000) / 100000);
-            return String.format("%s,%sM", millions, thousands);
-        }
-    }
 }
