@@ -2,7 +2,7 @@
 
 **Twitter** is an Android app that allows a user to view their Twitter timeline and post a new tweet. The app utilizes [Twitter REST API](https://dev.twitter.com/rest/public).
 
-Time spent: **X** hours spent in total
+Time spent: **22** hours spent in total
 
 ## User Stories
 
@@ -49,14 +49,15 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-<!--<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />-->
-\<coming soon\>
+<img src='twitter-walkthrough.gif' title='Twitter GIF Walkthrough' width='' alt='Twitter GIF Walkthrough' />
 
 GIF created with [LICEcap](https://www.cockos.com/licecap/).
 
 ## Notes
 
 Describe any challenges encountered while building the app.
+* I ran into a timing issue when implementing the network progress indicator where the timeline would start being populated before the progress indicator was defined. To fix this, I moved the call to the Twitter API inside createOptionsMenu(), after the progress indicator was defined, to ensure that the progress bar would appear while the tweets were loading.
+* To better differentiate between original tweets and retweets, I created a subclass of Tweet called Retweet. It was challenging to correctly deal with both situations and make them appear correctly on the UI, especially since the Twitter API sometimes only returned information about the original tweet (and not the retweeted version). 
 
 ## Open-source libraries used
 
