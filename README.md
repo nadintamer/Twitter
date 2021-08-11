@@ -4,6 +4,14 @@
 
 Time spent: **22** hours spent in total
 
+## Video Walkthrough
+
+Here's a walkthrough of implemented user stories:
+
+<img src='twitter-walkthrough.gif' title='Twitter GIF Walkthrough' width='' alt='Twitter GIF Walkthrough' />
+
+GIF created with [LICEcap](https://www.cockos.com/licecap/).
+
 ## User Stories
 
 The following **required** functionality is completed:
@@ -44,14 +52,6 @@ The following **additional** features are implemented:
 * [X] A user's profile information and timeline are displayed on a user detail view
 * [X] User can view uncropped version of an image by tapping on it, like in the Twitter app
 * [X] User can tap on the profile button in the menu bar to see their own profile and tweets
-
-## Video Walkthrough
-
-Here's a walkthrough of implemented user stories:
-
-<img src='twitter-walkthrough.gif' title='Twitter GIF Walkthrough' width='' alt='Twitter GIF Walkthrough' />
-
-GIF created with [LICEcap](https://www.cockos.com/licecap/).
 
 ## Notes
 
